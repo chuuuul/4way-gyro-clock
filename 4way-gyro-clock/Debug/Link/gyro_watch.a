@@ -1,0 +1,2765 @@
+;
+;/////////////////  메뉴얼  /////////////////////
+;//  mode = 1 : 시계
+;//  mode = 2 : 알람
+;//  mode = 3 : 타이머
+;//  mode = 4 : 온도
+;/////////////////////////////////////////////
+;#include <mega128.h>
+;PCODE: $00000000 VOL: 0
+	#ifndef __SLEEP_DEFINED__
+;PCODE: $00000001 VOL: 0
+	#define __SLEEP_DEFINED__
+;PCODE: $00000002 VOL: 0
+	.EQU __se_bit=0x20
+;PCODE: $00000003 VOL: 0
+	.EQU __sm_mask=0x1C
+;PCODE: $00000004 VOL: 0
+	.EQU __sm_powerdown=0x10
+;PCODE: $00000005 VOL: 0
+	.EQU __sm_powersave=0x18
+;PCODE: $00000006 VOL: 0
+	.EQU __sm_standby=0x14
+;PCODE: $00000007 VOL: 0
+	.EQU __sm_ext_standby=0x1C
+;PCODE: $00000008 VOL: 0
+	.EQU __sm_adc_noise_red=0x08
+;PCODE: $00000009 VOL: 0
+	.SET power_ctrl_reg=mcucr
+;PCODE: $0000000A VOL: 0
+	#endif
+;PCODE: $0000000B VOL: 0
+;PCODE: $0000000C VOL: 0
+;#include <delay.h>
+;#include <stdio.h>
+;#include <math.h>
+;#include <clock.h>
+;//#include <alcd.h>
+;
+;#include "key_func.c"
+;#ifndef _key_func_
+;#define _key_func_
+;
+;
+;char key_in(void)            // 키입력 감지 함수
+; 0000 000F {
+
+	.CSEG
+;PCODE: $0000000D VOL: 0
+;PCODE: $0000000E VOL: 0
+;  char buf = 0;
+;
+;  if( (PINC & 0x7F) != 0x00)
+;PCODE: $0000000F VOL: 0
+;	buf -> R17
+;PCODE: $00000010 VOL: 0
+;PCODE: $00000011 VOL: 0
+;PCODE: $00000012 VOL: 0
+;PCODE: $00000013 VOL: 0
+;PCODE: $00000014 VOL: 0
+;PCODE: $00000015 VOL: 0
+;   {
+;     buf = (PINC & 0x7F) ;
+;PCODE: $00000016 VOL: 0
+;PCODE: $00000017 VOL: 0
+;PCODE: $00000018 VOL: 0
+;     key_flag = 1;            // 키를 입력받았는지 확인
+;PCODE: $00000019 VOL: 0
+;PCODE: $0000001A VOL: 0
+;PCODE: $0000001B VOL: 0
+;
+;     while( (PINC & 0x7F)  != 0x00)     // 누르는 동안에도 display 표시
+;PCODE: $0000001C VOL: 0
+;PCODE: $0000001D VOL: 0
+;PCODE: $0000001E VOL: 0
+;PCODE: $0000001F VOL: 0
+;PCODE: $00000020 VOL: 0
+;      {
+;        //lcd_out();                    // 캐터링
+;      }
+;PCODE: $00000021 VOL: 0
+;PCODE: $00000022 VOL: 0
+;   }
+;  return buf;
+;PCODE: $00000023 VOL: 0
+;PCODE: $00000024 VOL: 0
+;PCODE: $00000025 VOL: 0
+;PCODE: $00000026 VOL: 0
+;}
+;PCODE: $00000027 VOL: 0
+;
+;
+;void key_chk(void)
+;{
+;PCODE: $00000028 VOL: 0
+;PCODE: $00000029 VOL: 0
+;
+;    key_flag = 0;
+;PCODE: $0000002A VOL: 0
+;PCODE: $0000002B VOL: 0
+;PCODE: $0000002C VOL: 0
+;    switch(key)
+;PCODE: $0000002D VOL: 0
+;PCODE: $0000002E VOL: 0
+;    {
+;     case 0x01:             // hour setting
+;PCODE: $0000002F VOL: 0
+;PCODE: $00000030 VOL: 0
+;        if (up_down_flag == 0)
+;PCODE: $00000031 VOL: 0
+;PCODE: $00000032 VOL: 0
+;PCODE: $00000033 VOL: 0
+;        {
+;            if(mode == 1)
+;PCODE: $00000034 VOL: 0
+;PCODE: $00000035 VOL: 0
+;PCODE: $00000036 VOL: 0
+;                time.hour++;
+;PCODE: $00000037 VOL: 0
+;PCODE: $00000038 VOL: 0
+;PCODE: $00000039 VOL: 0
+;PCODE: $0000003A VOL: 0
+;PCODE: $0000003B VOL: 0
+;PCODE: $0000003C VOL: 0
+;            if(mode == 2)
+;PCODE: $0000003D VOL: 0
+;PCODE: $0000003E VOL: 0
+;PCODE: $0000003F VOL: 0
+;PCODE: $00000040 VOL: 0
+;                alarm.hour++;
+;PCODE: $00000041 VOL: 0
+;PCODE: $00000042 VOL: 0
+;PCODE: $00000043 VOL: 0
+;PCODE: $00000044 VOL: 0
+;PCODE: $00000045 VOL: 0
+;PCODE: $00000046 VOL: 0
+;            if(mode == 3)
+;PCODE: $00000047 VOL: 0
+;PCODE: $00000048 VOL: 0
+;PCODE: $00000049 VOL: 0
+;PCODE: $0000004A VOL: 0
+;                timer.hour++;
+;PCODE: $0000004B VOL: 0
+;PCODE: $0000004C VOL: 0
+;PCODE: $0000004D VOL: 0
+;PCODE: $0000004E VOL: 0
+;PCODE: $0000004F VOL: 0
+;PCODE: $00000050 VOL: 0
+;        }
+;PCODE: $00000051 VOL: 0
+;        if (up_down_flag == 1)
+;PCODE: $00000052 VOL: 0
+;PCODE: $00000053 VOL: 0
+;PCODE: $00000054 VOL: 0
+;PCODE: $00000055 VOL: 0
+;        {
+;            if(mode == 1)
+;PCODE: $00000056 VOL: 0
+;PCODE: $00000057 VOL: 0
+;PCODE: $00000058 VOL: 0
+;                time.hour--;
+;PCODE: $00000059 VOL: 0
+;PCODE: $0000005A VOL: 0
+;PCODE: $0000005B VOL: 0
+;PCODE: $0000005C VOL: 0
+;PCODE: $0000005D VOL: 0
+;PCODE: $0000005E VOL: 0
+;            if(mode == 2)
+;PCODE: $0000005F VOL: 0
+;PCODE: $00000060 VOL: 0
+;PCODE: $00000061 VOL: 0
+;PCODE: $00000062 VOL: 0
+;                alarm.hour--;
+;PCODE: $00000063 VOL: 0
+;PCODE: $00000064 VOL: 0
+;PCODE: $00000065 VOL: 0
+;PCODE: $00000066 VOL: 0
+;PCODE: $00000067 VOL: 0
+;PCODE: $00000068 VOL: 0
+;            if(mode == 3)
+;PCODE: $00000069 VOL: 0
+;PCODE: $0000006A VOL: 0
+;PCODE: $0000006B VOL: 0
+;PCODE: $0000006C VOL: 0
+;                timer.hour--;
+;PCODE: $0000006D VOL: 0
+;PCODE: $0000006E VOL: 0
+;PCODE: $0000006F VOL: 0
+;PCODE: $00000070 VOL: 0
+;PCODE: $00000071 VOL: 0
+;PCODE: $00000072 VOL: 0
+;        }
+;PCODE: $00000073 VOL: 0
+;        break;
+;PCODE: $00000074 VOL: 0
+;PCODE: $00000075 VOL: 0
+;
+;     case 0x02:             // min setting
+;PCODE: $00000076 VOL: 0
+;PCODE: $00000077 VOL: 0
+;PCODE: $00000078 VOL: 0
+;        if (up_down_flag == 0)
+;PCODE: $00000079 VOL: 0
+;PCODE: $0000007A VOL: 0
+;PCODE: $0000007B VOL: 0
+;        {
+;            if(mode == 1)
+;PCODE: $0000007C VOL: 0
+;PCODE: $0000007D VOL: 0
+;PCODE: $0000007E VOL: 0
+;                time.min++;
+;PCODE: $0000007F VOL: 0
+;PCODE: $00000080 VOL: 0
+;PCODE: $00000081 VOL: 0
+;PCODE: $00000082 VOL: 0
+;PCODE: $00000083 VOL: 0
+;PCODE: $00000084 VOL: 0
+;            if(mode == 2)
+;PCODE: $00000085 VOL: 0
+;PCODE: $00000086 VOL: 0
+;PCODE: $00000087 VOL: 0
+;PCODE: $00000088 VOL: 0
+;                alarm.min++;
+;PCODE: $00000089 VOL: 0
+;PCODE: $0000008A VOL: 0
+;PCODE: $0000008B VOL: 0
+;PCODE: $0000008C VOL: 0
+;PCODE: $0000008D VOL: 0
+;PCODE: $0000008E VOL: 0
+;            if(mode == 3)
+;PCODE: $0000008F VOL: 0
+;PCODE: $00000090 VOL: 0
+;PCODE: $00000091 VOL: 0
+;PCODE: $00000092 VOL: 0
+;                timer.min++;
+;PCODE: $00000093 VOL: 0
+;PCODE: $00000094 VOL: 0
+;PCODE: $00000095 VOL: 0
+;PCODE: $00000096 VOL: 0
+;PCODE: $00000097 VOL: 0
+;PCODE: $00000098 VOL: 0
+;        }
+;PCODE: $00000099 VOL: 0
+;
+;        if (up_down_flag == 1)
+;PCODE: $0000009A VOL: 0
+;PCODE: $0000009B VOL: 0
+;PCODE: $0000009C VOL: 0
+;PCODE: $0000009D VOL: 0
+;        {
+;            if(mode == 1)
+;PCODE: $0000009E VOL: 0
+;PCODE: $0000009F VOL: 0
+;PCODE: $000000A0 VOL: 0
+;                time.min--;
+;PCODE: $000000A1 VOL: 0
+;PCODE: $000000A2 VOL: 0
+;PCODE: $000000A3 VOL: 0
+;PCODE: $000000A4 VOL: 0
+;PCODE: $000000A5 VOL: 0
+;PCODE: $000000A6 VOL: 0
+;            if(mode == 2)
+;PCODE: $000000A7 VOL: 0
+;PCODE: $000000A8 VOL: 0
+;PCODE: $000000A9 VOL: 0
+;PCODE: $000000AA VOL: 0
+;                alarm.min--;
+;PCODE: $000000AB VOL: 0
+;PCODE: $000000AC VOL: 0
+;PCODE: $000000AD VOL: 0
+;PCODE: $000000AE VOL: 0
+;PCODE: $000000AF VOL: 0
+;PCODE: $000000B0 VOL: 0
+;            if(mode == 3)
+;PCODE: $000000B1 VOL: 0
+;PCODE: $000000B2 VOL: 0
+;PCODE: $000000B3 VOL: 0
+;PCODE: $000000B4 VOL: 0
+;                timer.min--;
+;PCODE: $000000B5 VOL: 0
+;PCODE: $000000B6 VOL: 0
+;PCODE: $000000B7 VOL: 0
+;PCODE: $000000B8 VOL: 0
+;PCODE: $000000B9 VOL: 0
+;PCODE: $000000BA VOL: 0
+;        }
+;PCODE: $000000BB VOL: 0
+;        break;
+;PCODE: $000000BC VOL: 0
+;PCODE: $000000BD VOL: 0
+;
+;     case 0x04:             // sec setting
+;PCODE: $000000BE VOL: 0
+;PCODE: $000000BF VOL: 0
+;PCODE: $000000C0 VOL: 0
+;        if (up_down_flag == 0)
+;PCODE: $000000C1 VOL: 0
+;PCODE: $000000C2 VOL: 0
+;PCODE: $000000C3 VOL: 0
+;        {
+;            if(mode == 1)
+;PCODE: $000000C4 VOL: 0
+;PCODE: $000000C5 VOL: 0
+;PCODE: $000000C6 VOL: 0
+;                time.sec++;
+;PCODE: $000000C7 VOL: 0
+;PCODE: $000000C8 VOL: 0
+;PCODE: $000000C9 VOL: 0
+;            if(mode == 2)
+;PCODE: $000000CA VOL: 0
+;PCODE: $000000CB VOL: 0
+;PCODE: $000000CC VOL: 0
+;PCODE: $000000CD VOL: 0
+;                alarm.sec++;
+;PCODE: $000000CE VOL: 0
+;PCODE: $000000CF VOL: 0
+;PCODE: $000000D0 VOL: 0
+;            if(mode == 3)
+;PCODE: $000000D1 VOL: 0
+;PCODE: $000000D2 VOL: 0
+;PCODE: $000000D3 VOL: 0
+;PCODE: $000000D4 VOL: 0
+;                timer.sec++;
+;PCODE: $000000D5 VOL: 0
+;PCODE: $000000D6 VOL: 0
+;PCODE: $000000D7 VOL: 0
+;        }
+;PCODE: $000000D8 VOL: 0
+;        if (up_down_flag == 1)
+;PCODE: $000000D9 VOL: 0
+;PCODE: $000000DA VOL: 0
+;PCODE: $000000DB VOL: 0
+;PCODE: $000000DC VOL: 0
+;        {
+;            if(mode == 1)
+;PCODE: $000000DD VOL: 0
+;PCODE: $000000DE VOL: 0
+;PCODE: $000000DF VOL: 0
+;                time.sec--;
+;PCODE: $000000E0 VOL: 0
+;PCODE: $000000E1 VOL: 0
+;PCODE: $000000E2 VOL: 0
+;            if(mode == 2)
+;PCODE: $000000E3 VOL: 0
+;PCODE: $000000E4 VOL: 0
+;PCODE: $000000E5 VOL: 0
+;PCODE: $000000E6 VOL: 0
+;                alarm.sec--;
+;PCODE: $000000E7 VOL: 0
+;PCODE: $000000E8 VOL: 0
+;PCODE: $000000E9 VOL: 0
+;            if(mode == 3)
+;PCODE: $000000EA VOL: 0
+;PCODE: $000000EB VOL: 0
+;PCODE: $000000EC VOL: 0
+;PCODE: $000000ED VOL: 0
+;                timer.sec--;
+;PCODE: $000000EE VOL: 0
+;PCODE: $000000EF VOL: 0
+;PCODE: $000000F0 VOL: 0
+;        }
+;PCODE: $000000F1 VOL: 0
+;        break;
+;PCODE: $000000F2 VOL: 0
+;PCODE: $000000F3 VOL: 0
+;
+;     case 0x08:             // Up, Down Toggle
+;PCODE: $000000F4 VOL: 0
+;PCODE: $000000F5 VOL: 0
+;PCODE: $000000F6 VOL: 0
+;        up_down_flag = ~up_down_flag;
+;PCODE: $000000F7 VOL: 0
+;PCODE: $000000F8 VOL: 0
+;PCODE: $000000F9 VOL: 0
+;        break;
+;PCODE: $000000FA VOL: 0
+;    }
+;PCODE: $000000FB VOL: 0
+;
+;    if(mode==2)  alarm_position_carry();
+;PCODE: $000000FC VOL: 0
+;PCODE: $000000FD VOL: 0
+;PCODE: $000000FE VOL: 0
+;PCODE: $000000FF VOL: 0
+;    if(mode==3)  timer_position_carry();
+;PCODE: $00000100 VOL: 0
+;PCODE: $00000101 VOL: 0
+;PCODE: $00000102 VOL: 0
+;PCODE: $00000103 VOL: 0
+;PCODE: $00000104 VOL: 0
+;
+;}
+;PCODE: $00000105 VOL: 0
+;PCODE: $00000106 VOL: 0
+;PCODE: $00000107 VOL: 0
+;#endif
+;#include "func.c"
+;#ifndef _func_
+;#define _func_
+;
+;
+;
+;void lcd_out()
+; 0000 0010 {
+;PCODE: $00000108 VOL: 0
+;PCODE: $00000109 VOL: 0
+;    switch(mode)
+;PCODE: $0000010A VOL: 0
+;PCODE: $0000010B VOL: 0
+;    {
+;        case 1 :
+;PCODE: $0000010C VOL: 0
+;PCODE: $0000010D VOL: 0
+;            if( clock_config_flag == 0 )       // config_flag 0 이면 시계 표시
+;PCODE: $0000010E VOL: 0
+;PCODE: $0000010F VOL: 0
+;PCODE: $00000110 VOL: 0
+;                clock_display();
+;PCODE: $00000111 VOL: 0
+;            else if( clock_config_flag == 1 )  // config_flag 1 이면 설정 모드
+;PCODE: $00000112 VOL: 0
+;PCODE: $00000113 VOL: 0
+;PCODE: $00000114 VOL: 0
+;PCODE: $00000115 VOL: 0
+;PCODE: $00000116 VOL: 0
+;                {
+;                    clock_config();
+;PCODE: $00000117 VOL: 0
+;                }
+;            break;
+;PCODE: $00000118 VOL: 0
+;PCODE: $00000119 VOL: 0
+;PCODE: $0000011A VOL: 0
+;        case 2 :
+;PCODE: $0000011B VOL: 0
+;PCODE: $0000011C VOL: 0
+;PCODE: $0000011D VOL: 0
+;            alarm_display();
+;PCODE: $0000011E VOL: 0
+;
+;            break;
+;PCODE: $0000011F VOL: 0
+;        case 3 :
+;PCODE: $00000120 VOL: 0
+;PCODE: $00000121 VOL: 0
+;PCODE: $00000122 VOL: 0
+;            timer_display();
+;PCODE: $00000123 VOL: 0
+;
+;            break;
+;PCODE: $00000124 VOL: 0
+;        case 4 :
+;PCODE: $00000125 VOL: 0
+;PCODE: $00000126 VOL: 0
+;PCODE: $00000127 VOL: 0
+;            printf("temp = %d C \r\n",int_temp);
+;PCODE: $00000128 VOL: 0
+;PCODE: $00000129 VOL: 0
+;PCODE: $0000012A VOL: 0
+;PCODE: $0000012B VOL: 0
+;PCODE: $0000012C VOL: 0
+;PCODE: $0000012D VOL: 0
+;PCODE: $0000012E VOL: 0
+;PCODE: $0000012F VOL: 0
+;PCODE: $00000130 VOL: 0
+;PCODE: $00000131 VOL: 0
+;            temp_display();
+;PCODE: $00000132 VOL: 0
+;            break;
+;PCODE: $00000133 VOL: 0
+;    }
+;PCODE: $00000134 VOL: 0
+;}
+;PCODE: $00000135 VOL: 0
+;PCODE: $00000136 VOL: 0
+;
+;
+;void ring_the_bell (void)
+;{
+;PCODE: $00000137 VOL: 0
+;PCODE: $00000138 VOL: 0
+;        if (bellbell_flag == 1)
+;PCODE: $00000139 VOL: 0
+;PCODE: $0000013A VOL: 0
+;PCODE: $0000013B VOL: 0
+;        {
+;            bellbell_flag = 2 ;
+;PCODE: $0000013C VOL: 0
+;PCODE: $0000013D VOL: 0
+;            PORTE.2 = 1;
+;PCODE: $0000013E VOL: 0
+;PCODE: $0000013F VOL: 0
+;        }
+;        else if (bellbell_flag == 2)
+;PCODE: $00000140 VOL: 0
+;PCODE: $00000141 VOL: 0
+;PCODE: $00000142 VOL: 0
+;PCODE: $00000143 VOL: 0
+;PCODE: $00000144 VOL: 0
+;        {
+;            PORTE.2 = 0;
+;PCODE: $00000145 VOL: 0
+;PCODE: $00000146 VOL: 0
+;            bellbell_flag = 1;
+;PCODE: $00000147 VOL: 0
+;PCODE: $00000148 VOL: 0
+;        }
+;}
+;PCODE: $00000149 VOL: 0
+;PCODE: $0000014A VOL: 0
+;PCODE: $0000014B VOL: 0
+;PCODE: $0000014C VOL: 0
+;
+;
+;void clock_position_carry(void)   // 시계 자리수 올림
+;{
+;PCODE: $0000014D VOL: 0
+;PCODE: $0000014E VOL: 0
+;    if( time.sec >= 60)
+;PCODE: $0000014F VOL: 0
+;PCODE: $00000150 VOL: 0
+;PCODE: $00000151 VOL: 0
+;    {
+;        time.min++;
+;PCODE: $00000152 VOL: 0
+;PCODE: $00000153 VOL: 0
+;PCODE: $00000154 VOL: 0
+;PCODE: $00000155 VOL: 0
+;PCODE: $00000156 VOL: 0
+;PCODE: $00000157 VOL: 0
+;        time.sec = 0;
+;PCODE: $00000158 VOL: 0
+;PCODE: $00000159 VOL: 0
+;    }
+;    if( time.min >= 60)
+;PCODE: $0000015A VOL: 0
+;PCODE: $0000015B VOL: 0
+;PCODE: $0000015C VOL: 0
+;PCODE: $0000015D VOL: 0
+;PCODE: $0000015E VOL: 0
+;    {
+;        time.hour++;
+;PCODE: $0000015F VOL: 0
+;PCODE: $00000160 VOL: 0
+;PCODE: $00000161 VOL: 0
+;PCODE: $00000162 VOL: 0
+;PCODE: $00000163 VOL: 0
+;PCODE: $00000164 VOL: 0
+;        time.min=0;
+;PCODE: $00000165 VOL: 0
+;PCODE: $00000166 VOL: 0
+;PCODE: $00000167 VOL: 0
+;    }
+;    if( time.hour > 23)
+;PCODE: $00000168 VOL: 0
+;PCODE: $00000169 VOL: 0
+;PCODE: $0000016A VOL: 0
+;PCODE: $0000016B VOL: 0
+;PCODE: $0000016C VOL: 0
+;    {
+;        time.hour = 0;
+;PCODE: $0000016D VOL: 0
+;PCODE: $0000016E VOL: 0
+;PCODE: $0000016F VOL: 0
+;    }
+;    if( time.sec < 0) time.sec  = 59;
+;PCODE: $00000170 VOL: 0
+;PCODE: $00000171 VOL: 0
+;PCODE: $00000172 VOL: 0
+;PCODE: $00000173 VOL: 0
+;PCODE: $00000174 VOL: 0
+;PCODE: $00000175 VOL: 0
+;    if( time.min < 0) time.min  = 59;
+;PCODE: $00000176 VOL: 0
+;PCODE: $00000177 VOL: 0
+;PCODE: $00000178 VOL: 0
+;PCODE: $00000179 VOL: 0
+;PCODE: $0000017A VOL: 0
+;PCODE: $0000017B VOL: 0
+;PCODE: $0000017C VOL: 0
+;PCODE: $0000017D VOL: 0
+;    if( time.hour < 0) time.sec = 23;
+;PCODE: $0000017E VOL: 0
+;PCODE: $0000017F VOL: 0
+;PCODE: $00000180 VOL: 0
+;PCODE: $00000181 VOL: 0
+;PCODE: $00000182 VOL: 0
+;PCODE: $00000183 VOL: 0
+;PCODE: $00000184 VOL: 0
+;}
+;PCODE: $00000185 VOL: 0
+;PCODE: $00000186 VOL: 0
+;PCODE: $00000187 VOL: 0
+;
+;
+;
+;
+;void alarm_position_carry(void)   // 알람 자리수 올림
+;{
+;PCODE: $00000188 VOL: 0
+;PCODE: $00000189 VOL: 0
+;    if( alarm.sec >= 60) alarm.sec = 0;
+;PCODE: $0000018A VOL: 0
+;PCODE: $0000018B VOL: 0
+;PCODE: $0000018C VOL: 0
+;PCODE: $0000018D VOL: 0
+;PCODE: $0000018E VOL: 0
+;    if( alarm.min >= 60) alarm.min=0;
+;PCODE: $0000018F VOL: 0
+;PCODE: $00000190 VOL: 0
+;PCODE: $00000191 VOL: 0
+;PCODE: $00000192 VOL: 0
+;PCODE: $00000193 VOL: 0
+;PCODE: $00000194 VOL: 0
+;PCODE: $00000195 VOL: 0
+;PCODE: $00000196 VOL: 0
+;    if( alarm.hour >= 24) alarm.hour = 0;
+;PCODE: $00000197 VOL: 0
+;PCODE: $00000198 VOL: 0
+;PCODE: $00000199 VOL: 0
+;PCODE: $0000019A VOL: 0
+;PCODE: $0000019B VOL: 0
+;PCODE: $0000019C VOL: 0
+;PCODE: $0000019D VOL: 0
+;PCODE: $0000019E VOL: 0
+;    if( alarm.sec < 0) alarm.sec  = 59;
+;PCODE: $0000019F VOL: 0
+;PCODE: $000001A0 VOL: 0
+;PCODE: $000001A1 VOL: 0
+;PCODE: $000001A2 VOL: 0
+;PCODE: $000001A3 VOL: 0
+;PCODE: $000001A4 VOL: 0
+;    if( alarm.min < 0) alarm.min  = 59;
+;PCODE: $000001A5 VOL: 0
+;PCODE: $000001A6 VOL: 0
+;PCODE: $000001A7 VOL: 0
+;PCODE: $000001A8 VOL: 0
+;PCODE: $000001A9 VOL: 0
+;PCODE: $000001AA VOL: 0
+;PCODE: $000001AB VOL: 0
+;PCODE: $000001AC VOL: 0
+;    if( alarm.hour < 0) alarm.sec = 23;
+;PCODE: $000001AD VOL: 0
+;PCODE: $000001AE VOL: 0
+;PCODE: $000001AF VOL: 0
+;PCODE: $000001B0 VOL: 0
+;PCODE: $000001B1 VOL: 0
+;PCODE: $000001B2 VOL: 0
+;PCODE: $000001B3 VOL: 0
+;}
+;PCODE: $000001B4 VOL: 0
+;PCODE: $000001B5 VOL: 0
+;PCODE: $000001B6 VOL: 0
+;void timer_position_carry(void)   // 타이머 자리수 올림
+;{
+;PCODE: $000001B7 VOL: 0
+;PCODE: $000001B8 VOL: 0
+;    if( timer.sec >= 60) timer.sec = 0;
+;PCODE: $000001B9 VOL: 0
+;PCODE: $000001BA VOL: 0
+;PCODE: $000001BB VOL: 0
+;PCODE: $000001BC VOL: 0
+;PCODE: $000001BD VOL: 0
+;    if( timer.min >= 60) timer.min=0;
+;PCODE: $000001BE VOL: 0
+;PCODE: $000001BF VOL: 0
+;PCODE: $000001C0 VOL: 0
+;PCODE: $000001C1 VOL: 0
+;PCODE: $000001C2 VOL: 0
+;PCODE: $000001C3 VOL: 0
+;PCODE: $000001C4 VOL: 0
+;PCODE: $000001C5 VOL: 0
+;    if( timer.hour >= 24) timer.hour = 0;
+;PCODE: $000001C6 VOL: 0
+;PCODE: $000001C7 VOL: 0
+;PCODE: $000001C8 VOL: 0
+;PCODE: $000001C9 VOL: 0
+;PCODE: $000001CA VOL: 0
+;PCODE: $000001CB VOL: 0
+;PCODE: $000001CC VOL: 0
+;PCODE: $000001CD VOL: 0
+;    if( timer.sec < 0)
+;PCODE: $000001CE VOL: 0
+;PCODE: $000001CF VOL: 0
+;PCODE: $000001D0 VOL: 0
+;PCODE: $000001D1 VOL: 0
+;    {
+;        timer.min--;
+;PCODE: $000001D2 VOL: 0
+;PCODE: $000001D3 VOL: 0
+;PCODE: $000001D4 VOL: 0
+;PCODE: $000001D5 VOL: 0
+;PCODE: $000001D6 VOL: 0
+;PCODE: $000001D7 VOL: 0
+;        timer.sec  = 59;
+;PCODE: $000001D8 VOL: 0
+;PCODE: $000001D9 VOL: 0
+;    }
+;    if( timer.min < 0)
+;PCODE: $000001DA VOL: 0
+;PCODE: $000001DB VOL: 0
+;PCODE: $000001DC VOL: 0
+;PCODE: $000001DD VOL: 0
+;PCODE: $000001DE VOL: 0
+;    {
+;        timer.min  = 59;
+;PCODE: $000001DF VOL: 0
+;PCODE: $000001E0 VOL: 0
+;PCODE: $000001E1 VOL: 0
+;        timer.hour--;
+;PCODE: $000001E2 VOL: 0
+;PCODE: $000001E3 VOL: 0
+;PCODE: $000001E4 VOL: 0
+;PCODE: $000001E5 VOL: 0
+;PCODE: $000001E6 VOL: 0
+;PCODE: $000001E7 VOL: 0
+;    }
+;    if( timer.hour < 0)
+;PCODE: $000001E8 VOL: 0
+;PCODE: $000001E9 VOL: 0
+;PCODE: $000001EA VOL: 0
+;PCODE: $000001EB VOL: 0
+;PCODE: $000001EC VOL: 0
+;    {
+;        timer.hour=23;
+;PCODE: $000001ED VOL: 0
+;PCODE: $000001EE VOL: 0
+;PCODE: $000001EF VOL: 0
+;    }
+;}
+;PCODE: $000001F0 VOL: 0
+;PCODE: $000001F1 VOL: 0
+;PCODE: $000001F2 VOL: 0
+;
+;
+;void clock_config(void)
+;{
+;PCODE: $000001F3 VOL: 0
+;PCODE: $000001F4 VOL: 0
+;
+;
+;    LCD_string(0x10, "Time Setting",2,0);
+;PCODE: $000001F5 VOL: 0
+;PCODE: $000001F6 VOL: 0
+;PCODE: $000001F7 VOL: 0
+;PCODE: $000001F8 VOL: 0
+;PCODE: $000001F9 VOL: 0
+;PCODE: $000001FA VOL: 0
+;PCODE: $000001FB VOL: 0
+;PCODE: $000001FC VOL: 0
+;PCODE: $000001FD VOL: 0
+;
+;    LCD_string(0x10," ",5,1);
+;PCODE: $000001FE VOL: 0
+;PCODE: $000001FF VOL: 0
+;PCODE: $00000200 VOL: 0
+;PCODE: $00000201 VOL: 0
+;PCODE: $00000202 VOL: 0
+;PCODE: $00000203 VOL: 0
+;PCODE: $00000204 VOL: 0
+;PCODE: $00000205 VOL: 0
+;PCODE: $00000206 VOL: 0
+;    LCD_data((time.hour/10) + 0x30);
+;PCODE: $00000207 VOL: 0
+;PCODE: $00000208 VOL: 0
+;PCODE: $00000209 VOL: 0
+;PCODE: $0000020A VOL: 0
+;PCODE: $0000020B VOL: 0
+;PCODE: $0000020C VOL: 0
+;PCODE: $0000020D VOL: 0
+;PCODE: $0000020E VOL: 0
+;    LCD_data((time.hour%10) + 0x30);
+;PCODE: $0000020F VOL: 0
+;PCODE: $00000210 VOL: 0
+;PCODE: $00000211 VOL: 0
+;PCODE: $00000212 VOL: 0
+;PCODE: $00000213 VOL: 0
+;PCODE: $00000214 VOL: 0
+;PCODE: $00000215 VOL: 0
+;PCODE: $00000216 VOL: 0
+;    LCD_data(':');
+;PCODE: $00000217 VOL: 0
+;PCODE: $00000218 VOL: 0
+;    LCD_data((time.min/10) + 0x30);
+;PCODE: $00000219 VOL: 0
+;PCODE: $0000021A VOL: 0
+;PCODE: $0000021B VOL: 0
+;PCODE: $0000021C VOL: 0
+;PCODE: $0000021D VOL: 0
+;PCODE: $0000021E VOL: 0
+;PCODE: $0000021F VOL: 0
+;PCODE: $00000220 VOL: 0
+;    LCD_data((time.min%10) + 0x30);
+;PCODE: $00000221 VOL: 0
+;PCODE: $00000222 VOL: 0
+;PCODE: $00000223 VOL: 0
+;PCODE: $00000224 VOL: 0
+;PCODE: $00000225 VOL: 0
+;PCODE: $00000226 VOL: 0
+;PCODE: $00000227 VOL: 0
+;PCODE: $00000228 VOL: 0
+;    LCD_data(':');
+;PCODE: $00000229 VOL: 0
+;PCODE: $0000022A VOL: 0
+;    LCD_data((time.sec/10) + 0x30);
+;PCODE: $0000022B VOL: 0
+;PCODE: $0000022C VOL: 0
+;PCODE: $0000022D VOL: 0
+;PCODE: $0000022E VOL: 0
+;PCODE: $0000022F VOL: 0
+;PCODE: $00000230 VOL: 0
+;PCODE: $00000231 VOL: 0
+;    LCD_data((time.sec%10) + 0x30);
+;PCODE: $00000232 VOL: 0
+;PCODE: $00000233 VOL: 0
+;PCODE: $00000234 VOL: 0
+;PCODE: $00000235 VOL: 0
+;PCODE: $00000236 VOL: 0
+;PCODE: $00000237 VOL: 0
+;PCODE: $00000238 VOL: 0
+;    LCD_data(' ');
+;PCODE: $00000239 VOL: 0
+;PCODE: $0000023A VOL: 0
+;}
+;PCODE: $0000023B VOL: 0
+;PCODE: $0000023C VOL: 0
+
+	.DSEG
+_0x4B:
+	.BYTE 0xF
+;
+;void clock_display(void)
+;{
+
+	.CSEG
+;PCODE: $0000023D VOL: 0
+;PCODE: $0000023E VOL: 0
+;
+;    printf("clock \n\r");
+;PCODE: $0000023F VOL: 0
+;PCODE: $00000240 VOL: 0
+;PCODE: $00000241 VOL: 0
+;PCODE: $00000242 VOL: 0
+;PCODE: $00000243 VOL: 0
+;PCODE: $00000244 VOL: 0
+;PCODE: $00000245 VOL: 0
+;
+;
+;    LCD_string(0x10, "Clock",2,0);
+;PCODE: $00000246 VOL: 0
+;PCODE: $00000247 VOL: 0
+;PCODE: $00000248 VOL: 0
+;PCODE: $00000249 VOL: 0
+;PCODE: $0000024A VOL: 0
+;PCODE: $0000024B VOL: 0
+;PCODE: $0000024C VOL: 0
+;PCODE: $0000024D VOL: 0
+;PCODE: $0000024E VOL: 0
+;
+;    LCD_string(0x10," ",5,1);
+;PCODE: $0000024F VOL: 0
+;PCODE: $00000250 VOL: 0
+;PCODE: $00000251 VOL: 0
+;PCODE: $00000252 VOL: 0
+;PCODE: $00000253 VOL: 0
+;PCODE: $00000254 VOL: 0
+;PCODE: $00000255 VOL: 0
+;PCODE: $00000256 VOL: 0
+;PCODE: $00000257 VOL: 0
+;    LCD_data((time.hour/10) + 0x30);
+;PCODE: $00000258 VOL: 0
+;PCODE: $00000259 VOL: 0
+;PCODE: $0000025A VOL: 0
+;PCODE: $0000025B VOL: 0
+;PCODE: $0000025C VOL: 0
+;PCODE: $0000025D VOL: 0
+;PCODE: $0000025E VOL: 0
+;PCODE: $0000025F VOL: 0
+;    LCD_data((time.hour%10) + 0x30);
+;PCODE: $00000260 VOL: 0
+;PCODE: $00000261 VOL: 0
+;PCODE: $00000262 VOL: 0
+;PCODE: $00000263 VOL: 0
+;PCODE: $00000264 VOL: 0
+;PCODE: $00000265 VOL: 0
+;PCODE: $00000266 VOL: 0
+;PCODE: $00000267 VOL: 0
+;    LCD_data(':');
+;PCODE: $00000268 VOL: 0
+;PCODE: $00000269 VOL: 0
+;    LCD_data((time.min/10) + 0x30);
+;PCODE: $0000026A VOL: 0
+;PCODE: $0000026B VOL: 0
+;PCODE: $0000026C VOL: 0
+;PCODE: $0000026D VOL: 0
+;PCODE: $0000026E VOL: 0
+;PCODE: $0000026F VOL: 0
+;PCODE: $00000270 VOL: 0
+;PCODE: $00000271 VOL: 0
+;    LCD_data((time.min%10) + 0x30);
+;PCODE: $00000272 VOL: 0
+;PCODE: $00000273 VOL: 0
+;PCODE: $00000274 VOL: 0
+;PCODE: $00000275 VOL: 0
+;PCODE: $00000276 VOL: 0
+;PCODE: $00000277 VOL: 0
+;PCODE: $00000278 VOL: 0
+;PCODE: $00000279 VOL: 0
+;    LCD_data(':');
+;PCODE: $0000027A VOL: 0
+;PCODE: $0000027B VOL: 0
+;    LCD_data((time.sec/10) + 0x30);
+;PCODE: $0000027C VOL: 0
+;PCODE: $0000027D VOL: 0
+;PCODE: $0000027E VOL: 0
+;PCODE: $0000027F VOL: 0
+;PCODE: $00000280 VOL: 0
+;PCODE: $00000281 VOL: 0
+;PCODE: $00000282 VOL: 0
+;    LCD_data((time.sec%10) + 0x30);
+;PCODE: $00000283 VOL: 0
+;PCODE: $00000284 VOL: 0
+;PCODE: $00000285 VOL: 0
+;PCODE: $00000286 VOL: 0
+;PCODE: $00000287 VOL: 0
+;PCODE: $00000288 VOL: 0
+;PCODE: $00000289 VOL: 0
+;    LCD_data(' ');
+;PCODE: $0000028A VOL: 0
+;PCODE: $0000028B VOL: 0
+;
+;    printf("시간 : %d시 %d분 %d초\n\r", time.hour, time.min, time.sec);
+;PCODE: $0000028C VOL: 0
+;PCODE: $0000028D VOL: 0
+;PCODE: $0000028E VOL: 0
+;PCODE: $0000028F VOL: 0
+;PCODE: $00000290 VOL: 0
+;PCODE: $00000291 VOL: 0
+;PCODE: $00000292 VOL: 0
+;PCODE: $00000293 VOL: 0
+;PCODE: $00000294 VOL: 0
+;PCODE: $00000295 VOL: 0
+;PCODE: $00000296 VOL: 0
+;PCODE: $00000297 VOL: 0
+;PCODE: $00000298 VOL: 0
+;PCODE: $00000299 VOL: 0
+;PCODE: $0000029A VOL: 0
+;PCODE: $0000029B VOL: 0
+;PCODE: $0000029C VOL: 0
+;PCODE: $0000029D VOL: 0
+;
+;}
+;PCODE: $0000029E VOL: 0
+;PCODE: $0000029F VOL: 0
+
+	.DSEG
+_0x4C:
+	.BYTE 0x8
+;
+;void alarm_display(void)
+;{
+
+	.CSEG
+;PCODE: $000002A0 VOL: 0
+;PCODE: $000002A1 VOL: 0
+;    printf("alarm \n\r");
+;PCODE: $000002A2 VOL: 0
+;PCODE: $000002A3 VOL: 0
+;PCODE: $000002A4 VOL: 0
+;PCODE: $000002A5 VOL: 0
+;PCODE: $000002A6 VOL: 0
+;PCODE: $000002A7 VOL: 0
+;PCODE: $000002A8 VOL: 0
+;
+;    if(alarm_flag == 1)
+;PCODE: $000002A9 VOL: 0
+;PCODE: $000002AA VOL: 0
+;PCODE: $000002AB VOL: 0
+;    {
+;        LCD_string(0x10, "Alarm ON    ",2,0);
+;PCODE: $000002AC VOL: 0
+;PCODE: $000002AD VOL: 0
+;PCODE: $000002AE VOL: 0
+;PCODE: $000002AF VOL: 0
+;PCODE: $000002B0 VOL: 0
+;PCODE: $000002B1 VOL: 0
+;PCODE: $000002B2 VOL: 0
+;PCODE: $000002B3 VOL: 0
+;PCODE: $000002B4 VOL: 0
+;    }
+;    else
+;PCODE: $000002B5 VOL: 0
+;PCODE: $000002B6 VOL: 0
+;    {
+;        LCD_string(0x10, "Alarm OFF",2,0);
+;PCODE: $000002B7 VOL: 0
+;PCODE: $000002B8 VOL: 0
+;PCODE: $000002B9 VOL: 0
+;PCODE: $000002BA VOL: 0
+;PCODE: $000002BB VOL: 0
+;PCODE: $000002BC VOL: 0
+;PCODE: $000002BD VOL: 0
+;PCODE: $000002BE VOL: 0
+;PCODE: $000002BF VOL: 0
+;    }
+;PCODE: $000002C0 VOL: 0
+;
+;    LCD_string(0x10," ",5,1);
+;PCODE: $000002C1 VOL: 0
+;PCODE: $000002C2 VOL: 0
+;PCODE: $000002C3 VOL: 0
+;PCODE: $000002C4 VOL: 0
+;PCODE: $000002C5 VOL: 0
+;PCODE: $000002C6 VOL: 0
+;PCODE: $000002C7 VOL: 0
+;PCODE: $000002C8 VOL: 0
+;PCODE: $000002C9 VOL: 0
+;    LCD_data((alarm.hour/10) + 0x30);
+;PCODE: $000002CA VOL: 0
+;PCODE: $000002CB VOL: 0
+;PCODE: $000002CC VOL: 0
+;PCODE: $000002CD VOL: 0
+;PCODE: $000002CE VOL: 0
+;PCODE: $000002CF VOL: 0
+;PCODE: $000002D0 VOL: 0
+;PCODE: $000002D1 VOL: 0
+;    LCD_data((alarm.hour%10) + 0x30);
+;PCODE: $000002D2 VOL: 0
+;PCODE: $000002D3 VOL: 0
+;PCODE: $000002D4 VOL: 0
+;PCODE: $000002D5 VOL: 0
+;PCODE: $000002D6 VOL: 0
+;PCODE: $000002D7 VOL: 0
+;PCODE: $000002D8 VOL: 0
+;PCODE: $000002D9 VOL: 0
+;    LCD_data(':');
+;PCODE: $000002DA VOL: 0
+;PCODE: $000002DB VOL: 0
+;    LCD_data((alarm.min/10) + 0x30);
+;PCODE: $000002DC VOL: 0
+;PCODE: $000002DD VOL: 0
+;PCODE: $000002DE VOL: 0
+;PCODE: $000002DF VOL: 0
+;PCODE: $000002E0 VOL: 0
+;PCODE: $000002E1 VOL: 0
+;PCODE: $000002E2 VOL: 0
+;PCODE: $000002E3 VOL: 0
+;    LCD_data((alarm.min%10) + 0x30);
+;PCODE: $000002E4 VOL: 0
+;PCODE: $000002E5 VOL: 0
+;PCODE: $000002E6 VOL: 0
+;PCODE: $000002E7 VOL: 0
+;PCODE: $000002E8 VOL: 0
+;PCODE: $000002E9 VOL: 0
+;PCODE: $000002EA VOL: 0
+;PCODE: $000002EB VOL: 0
+;    LCD_data(':');
+;PCODE: $000002EC VOL: 0
+;PCODE: $000002ED VOL: 0
+;    LCD_data((alarm.sec/10) + 0x30);
+;PCODE: $000002EE VOL: 0
+;PCODE: $000002EF VOL: 0
+;PCODE: $000002F0 VOL: 0
+;PCODE: $000002F1 VOL: 0
+;PCODE: $000002F2 VOL: 0
+;PCODE: $000002F3 VOL: 0
+;PCODE: $000002F4 VOL: 0
+;    LCD_data((alarm.sec%10) + 0x30);
+;PCODE: $000002F5 VOL: 0
+;PCODE: $000002F6 VOL: 0
+;PCODE: $000002F7 VOL: 0
+;PCODE: $000002F8 VOL: 0
+;PCODE: $000002F9 VOL: 0
+;PCODE: $000002FA VOL: 0
+;PCODE: $000002FB VOL: 0
+;    LCD_data(' ');
+;PCODE: $000002FC VOL: 0
+;PCODE: $000002FD VOL: 0
+;}
+;PCODE: $000002FE VOL: 0
+;PCODE: $000002FF VOL: 0
+
+	.DSEG
+_0x4E:
+	.BYTE 0x19
+;
+;void timer_display(void)
+;{
+
+	.CSEG
+;PCODE: $00000300 VOL: 0
+;PCODE: $00000301 VOL: 0
+;    printf("timer \n\r");
+;PCODE: $00000302 VOL: 0
+;PCODE: $00000303 VOL: 0
+;PCODE: $00000304 VOL: 0
+;PCODE: $00000305 VOL: 0
+;PCODE: $00000306 VOL: 0
+;PCODE: $00000307 VOL: 0
+;PCODE: $00000308 VOL: 0
+;
+;    if(timer_flag == 0 )
+;PCODE: $00000309 VOL: 0
+;PCODE: $0000030A VOL: 0
+;PCODE: $0000030B VOL: 0
+;        LCD_string(0x10, "Timer OFF",2,0);
+;PCODE: $0000030C VOL: 0
+;PCODE: $0000030D VOL: 0
+;PCODE: $0000030E VOL: 0
+;PCODE: $0000030F VOL: 0
+;PCODE: $00000310 VOL: 0
+;PCODE: $00000311 VOL: 0
+;PCODE: $00000312 VOL: 0
+;PCODE: $00000313 VOL: 0
+;PCODE: $00000314 VOL: 0
+;    if(timer_flag == 1 )
+;PCODE: $00000315 VOL: 0
+;PCODE: $00000316 VOL: 0
+;PCODE: $00000317 VOL: 0
+;PCODE: $00000318 VOL: 0
+;        LCD_string(0x10, "Timer ON    ",2,0);
+;PCODE: $00000319 VOL: 0
+;PCODE: $0000031A VOL: 0
+;PCODE: $0000031B VOL: 0
+;PCODE: $0000031C VOL: 0
+;PCODE: $0000031D VOL: 0
+;PCODE: $0000031E VOL: 0
+;PCODE: $0000031F VOL: 0
+;PCODE: $00000320 VOL: 0
+;PCODE: $00000321 VOL: 0
+;
+;
+;    LCD_string(0x10," ",5,1);
+;PCODE: $00000322 VOL: 0
+;PCODE: $00000323 VOL: 0
+;PCODE: $00000324 VOL: 0
+;PCODE: $00000325 VOL: 0
+;PCODE: $00000326 VOL: 0
+;PCODE: $00000327 VOL: 0
+;PCODE: $00000328 VOL: 0
+;PCODE: $00000329 VOL: 0
+;PCODE: $0000032A VOL: 0
+;PCODE: $0000032B VOL: 0
+;    LCD_data((timer.hour/10) + 0x30);
+;PCODE: $0000032C VOL: 0
+;PCODE: $0000032D VOL: 0
+;PCODE: $0000032E VOL: 0
+;PCODE: $0000032F VOL: 0
+;PCODE: $00000330 VOL: 0
+;PCODE: $00000331 VOL: 0
+;PCODE: $00000332 VOL: 0
+;PCODE: $00000333 VOL: 0
+;    LCD_data((timer.hour%10) + 0x30);
+;PCODE: $00000334 VOL: 0
+;PCODE: $00000335 VOL: 0
+;PCODE: $00000336 VOL: 0
+;PCODE: $00000337 VOL: 0
+;PCODE: $00000338 VOL: 0
+;PCODE: $00000339 VOL: 0
+;PCODE: $0000033A VOL: 0
+;PCODE: $0000033B VOL: 0
+;    LCD_data(':');
+;PCODE: $0000033C VOL: 0
+;PCODE: $0000033D VOL: 0
+;    LCD_data((timer.min/10) + 0x30);
+;PCODE: $0000033E VOL: 0
+;PCODE: $0000033F VOL: 0
+;PCODE: $00000340 VOL: 0
+;PCODE: $00000341 VOL: 0
+;PCODE: $00000342 VOL: 0
+;PCODE: $00000343 VOL: 0
+;PCODE: $00000344 VOL: 0
+;PCODE: $00000345 VOL: 0
+;    LCD_data((timer.min%10) + 0x30);
+;PCODE: $00000346 VOL: 0
+;PCODE: $00000347 VOL: 0
+;PCODE: $00000348 VOL: 0
+;PCODE: $00000349 VOL: 0
+;PCODE: $0000034A VOL: 0
+;PCODE: $0000034B VOL: 0
+;PCODE: $0000034C VOL: 0
+;PCODE: $0000034D VOL: 0
+;    LCD_data(':');
+;PCODE: $0000034E VOL: 0
+;PCODE: $0000034F VOL: 0
+;    LCD_data((timer.sec/10) + 0x30);
+;PCODE: $00000350 VOL: 0
+;PCODE: $00000351 VOL: 0
+;PCODE: $00000352 VOL: 0
+;PCODE: $00000353 VOL: 0
+;PCODE: $00000354 VOL: 0
+;PCODE: $00000355 VOL: 0
+;PCODE: $00000356 VOL: 0
+;    LCD_data((timer.sec%10) + 0x30);
+;PCODE: $00000357 VOL: 0
+;PCODE: $00000358 VOL: 0
+;PCODE: $00000359 VOL: 0
+;PCODE: $0000035A VOL: 0
+;PCODE: $0000035B VOL: 0
+;PCODE: $0000035C VOL: 0
+;PCODE: $0000035D VOL: 0
+;    LCD_data(' ');
+;PCODE: $0000035E VOL: 0
+;PCODE: $0000035F VOL: 0
+;}
+;PCODE: $00000360 VOL: 0
+;PCODE: $00000361 VOL: 0
+
+	.DSEG
+_0x51:
+	.BYTE 0x19
+;
+;void temp_display(void)
+;{
+
+	.CSEG
+;PCODE: $00000362 VOL: 0
+;PCODE: $00000363 VOL: 0
+;    printf("Temp \n\r");
+;PCODE: $00000364 VOL: 0
+;PCODE: $00000365 VOL: 0
+;PCODE: $00000366 VOL: 0
+;PCODE: $00000367 VOL: 0
+;PCODE: $00000368 VOL: 0
+;PCODE: $00000369 VOL: 0
+;PCODE: $0000036A VOL: 0
+;
+;    LCD_string(0x10, "Temperature",2,0);
+;PCODE: $0000036B VOL: 0
+;PCODE: $0000036C VOL: 0
+;PCODE: $0000036D VOL: 0
+;PCODE: $0000036E VOL: 0
+;PCODE: $0000036F VOL: 0
+;PCODE: $00000370 VOL: 0
+;PCODE: $00000371 VOL: 0
+;PCODE: $00000372 VOL: 0
+;PCODE: $00000373 VOL: 0
+;
+;    LCD_string(0x10," ",5,1);
+;PCODE: $00000374 VOL: 0
+;PCODE: $00000375 VOL: 0
+;PCODE: $00000376 VOL: 0
+;PCODE: $00000377 VOL: 0
+;PCODE: $00000378 VOL: 0
+;PCODE: $00000379 VOL: 0
+;PCODE: $0000037A VOL: 0
+;PCODE: $0000037B VOL: 0
+;PCODE: $0000037C VOL: 0
+;    LCD_data((int_temp/100) + 0x30);
+;PCODE: $0000037D VOL: 0
+;PCODE: $0000037E VOL: 0
+;PCODE: $0000037F VOL: 0
+;PCODE: $00000380 VOL: 0
+;PCODE: $00000381 VOL: 0
+;PCODE: $00000382 VOL: 0
+;    LCD_data((int_temp%100/10) + 0x30);
+;PCODE: $00000383 VOL: 0
+;PCODE: $00000384 VOL: 0
+;PCODE: $00000385 VOL: 0
+;PCODE: $00000386 VOL: 0
+;PCODE: $00000387 VOL: 0
+;PCODE: $00000388 VOL: 0
+;PCODE: $00000389 VOL: 0
+;PCODE: $0000038A VOL: 0
+;PCODE: $0000038B VOL: 0
+;    LCD_data('.');
+;PCODE: $0000038C VOL: 0
+;PCODE: $0000038D VOL: 0
+;    LCD_data((int_temp%10) + 0x30);
+;PCODE: $0000038E VOL: 0
+;PCODE: $0000038F VOL: 0
+;PCODE: $00000390 VOL: 0
+;PCODE: $00000391 VOL: 0
+;PCODE: $00000392 VOL: 0
+;PCODE: $00000393 VOL: 0
+;    LCD_data(' ');
+;PCODE: $00000394 VOL: 0
+;PCODE: $00000395 VOL: 0
+;    LCD_data('C');
+;PCODE: $00000396 VOL: 0
+;PCODE: $00000397 VOL: 0
+;    LCD_data(' ');
+;PCODE: $00000398 VOL: 0
+;PCODE: $00000399 VOL: 0
+;    LCD_data(' ');
+;PCODE: $0000039A VOL: 0
+;PCODE: $0000039B VOL: 0
+;    LCD_data(' ');
+;PCODE: $0000039C VOL: 0
+;PCODE: $0000039D VOL: 0
+;
+;}
+;PCODE: $0000039E VOL: 0
+;PCODE: $0000039F VOL: 0
+
+	.DSEG
+_0x53:
+	.BYTE 0xE
+;
+;#endif
+;#include "ext_int.c"
+;#ifndef _ext_int_
+;#define _ext_int_
+;
+;interrupt [TIM0_OVF] void timer0_ovf_isr(void)      // 0.001초마다 실행
+; 0000 0011 {
+
+	.CSEG
+;PCODE: $000003A0 VOL: 0
+;PCODE: $000003A1 VOL: 0
+;
+;    time_loop++;
+;PCODE: $000003A2 VOL: 0
+;PCODE: $000003A3 VOL: 0
+;PCODE: $000003A4 VOL: 0
+;PCODE: $000003A5 VOL: 0
+;    TCNT0 = 131;
+;PCODE: $000003A6 VOL: 0
+;PCODE: $000003A7 VOL: 0
+;    if(time_loop==1000)
+;PCODE: $000003A8 VOL: 0
+;PCODE: $000003A9 VOL: 0
+;PCODE: $000003AA VOL: 0
+;    {
+;        if(pause_flag == 0)
+;PCODE: $000003AB VOL: 0
+;PCODE: $000003AC VOL: 0
+;PCODE: $000003AD VOL: 0
+;            time.sec++;
+;PCODE: $000003AE VOL: 0
+;PCODE: $000003AF VOL: 0
+;PCODE: $000003B0 VOL: 0
+;        time_loop = 0;
+;PCODE: $000003B1 VOL: 0
+;PCODE: $000003B2 VOL: 0
+;PCODE: $000003B3 VOL: 0
+;        clock_position_carry();
+;PCODE: $000003B4 VOL: 0
+;
+;        if((alarm_flag == 1) && (time.hour == alarm.hour) && (time.min == alarm.min) && (time.sec == alarm.sec))
+;PCODE: $000003B5 VOL: 0
+;PCODE: $000003B6 VOL: 0
+;PCODE: $000003B7 VOL: 0
+;PCODE: $000003B8 VOL: 0
+;PCODE: $000003B9 VOL: 0
+;PCODE: $000003BA VOL: 0
+;PCODE: $000003BB VOL: 0
+;PCODE: $000003BC VOL: 0
+;PCODE: $000003BD VOL: 0
+;PCODE: $000003BE VOL: 0
+;PCODE: $000003BF VOL: 0
+;PCODE: $000003C0 VOL: 0
+;PCODE: $000003C1 VOL: 0
+;PCODE: $000003C2 VOL: 0
+;PCODE: $000003C3 VOL: 0
+;PCODE: $000003C4 VOL: 0
+;PCODE: $000003C5 VOL: 0
+;PCODE: $000003C6 VOL: 0
+;PCODE: $000003C7 VOL: 0
+;PCODE: $000003C8 VOL: 0
+;PCODE: $000003C9 VOL: 0
+;PCODE: $000003CA VOL: 0
+;PCODE: $000003CB VOL: 0
+;            bellbell_flag = 1; //알람 시작 조건 / 알람 시작
+;PCODE: $000003CC VOL: 0
+;PCODE: $000003CD VOL: 0
+;
+;
+;        if(timer_flag == 1)
+;PCODE: $000003CE VOL: 0
+;PCODE: $000003CF VOL: 0
+;PCODE: $000003D0 VOL: 0
+;PCODE: $000003D1 VOL: 0
+;        {
+;            timer.sec--;
+;PCODE: $000003D2 VOL: 0
+;PCODE: $000003D3 VOL: 0
+;PCODE: $000003D4 VOL: 0
+;            timer_position_carry();
+;PCODE: $000003D5 VOL: 0
+;            if(timer.sec + timer.min + timer.hour == 0)        // 타이머가 00000되면 알람
+;PCODE: $000003D6 VOL: 0
+;PCODE: $000003D7 VOL: 0
+;PCODE: $000003D8 VOL: 0
+;PCODE: $000003D9 VOL: 0
+;PCODE: $000003DA VOL: 0
+;PCODE: $000003DB VOL: 0
+;PCODE: $000003DC VOL: 0
+;PCODE: $000003DD VOL: 0
+;PCODE: $000003DE VOL: 0
+;PCODE: $000003DF VOL: 0
+;PCODE: $000003E0 VOL: 0
+;PCODE: $000003E1 VOL: 0
+;            {
+;                timer_flag = 0;
+;PCODE: $000003E2 VOL: 0
+;PCODE: $000003E3 VOL: 0
+;PCODE: $000003E4 VOL: 0
+;                bellbell_flag = 1;
+;PCODE: $000003E5 VOL: 0
+;PCODE: $000003E6 VOL: 0
+;            }
+;        }
+;PCODE: $000003E7 VOL: 0
+;
+;        if( bellbell_flag > 0)
+;PCODE: $000003E8 VOL: 0
+;PCODE: $000003E9 VOL: 0
+;PCODE: $000003EA VOL: 0
+;PCODE: $000003EB VOL: 0
+;            ring_the_bell();
+;PCODE: $000003EC VOL: 0
+;
+;
+;        if(refresh_flag == 1)
+;PCODE: $000003ED VOL: 0
+;PCODE: $000003EE VOL: 0
+;PCODE: $000003EF VOL: 0
+;PCODE: $000003F0 VOL: 0
+;        {
+;            LCD_clear();
+;PCODE: $000003F1 VOL: 0
+;            refresh_flag = 0;
+;PCODE: $000003F2 VOL: 0
+;PCODE: $000003F3 VOL: 0
+;PCODE: $000003F4 VOL: 0
+;        }
+;        lcd_out();      //LCD 표현의 거의 모든게 여기있음
+;PCODE: $000003F5 VOL: 0
+;PCODE: $000003F6 VOL: 0
+;
+;
+;    }
+;
+;}
+;PCODE: $000003F7 VOL: 0
+;PCODE: $000003F8 VOL: 0
+;PCODE: $000003F9 VOL: 0
+;PCODE: $000003FA VOL: 0
+;
+;
+;
+;/*
+;interrupt [EXT_INT6] void ext_int6_isr(void)
+;{
+;        mode++;
+;        if(mode > 3) mode = 1;
+;        printf("현재모드는 %d입니다 \r\n",mode);
+;}*/
+;
+;interrupt [EXT_INT7] void ext_int7_isr(void)            // 수정모드
+;{
+;PCODE: $000003FB VOL: 0
+;PCODE: $000003FC VOL: 0
+;    printf("special key interrupt \r\n");
+;PCODE: $000003FD VOL: 0
+;PCODE: $000003FE VOL: 0
+;PCODE: $000003FF VOL: 0
+;PCODE: $00000400 VOL: 0
+;PCODE: $00000401 VOL: 0
+;PCODE: $00000402 VOL: 0
+;PCODE: $00000403 VOL: 0
+;
+;
+;    while( (PINE & 0x80) != 0x00)     // 누르는 동안에도 display 표시
+;PCODE: $00000404 VOL: 0
+;PCODE: $00000405 VOL: 0
+;PCODE: $00000406 VOL: 0
+;PCODE: $00000407 VOL: 0
+;    {
+;        delay_ms(10);
+;PCODE: $00000408 VOL: 0
+;PCODE: $00000409 VOL: 0
+;PCODE: $0000040A VOL: 0
+;    }
+;PCODE: $0000040B VOL: 0
+;PCODE: $0000040C VOL: 0
+;
+;    if(bellbell_flag > 0)
+;PCODE: $0000040D VOL: 0
+;PCODE: $0000040E VOL: 0
+;PCODE: $0000040F VOL: 0
+;    {
+;        bellbell_flag = 0;
+;PCODE: $00000410 VOL: 0
+;        PORTE.2 = 0;
+;PCODE: $00000411 VOL: 0
+;PCODE: $00000412 VOL: 0
+;    }
+;
+;    else
+;PCODE: $00000413 VOL: 0
+;PCODE: $00000414 VOL: 0
+;    {
+;        switch (mode)
+;PCODE: $00000415 VOL: 0
+;PCODE: $00000416 VOL: 0
+;        {
+;        case 1:    //시계모드일때
+;PCODE: $00000417 VOL: 0
+;PCODE: $00000418 VOL: 0
+;            clock_config_flag = ~ clock_config_flag;
+;PCODE: $00000419 VOL: 0
+;PCODE: $0000041A VOL: 0
+;PCODE: $0000041B VOL: 0
+;            pause_flag = ~pause_flag;
+;PCODE: $0000041C VOL: 0
+;PCODE: $0000041D VOL: 0
+;PCODE: $0000041E VOL: 0
+;            break;
+;PCODE: $0000041F VOL: 0
+;        case 2:
+;PCODE: $00000420 VOL: 0
+;PCODE: $00000421 VOL: 0
+;PCODE: $00000422 VOL: 0
+;            alarm_flag = ~ alarm_flag;
+;PCODE: $00000423 VOL: 0
+;PCODE: $00000424 VOL: 0
+;PCODE: $00000425 VOL: 0
+;
+;            break;
+;PCODE: $00000426 VOL: 0
+;
+;        case 3:
+;PCODE: $00000427 VOL: 0
+;PCODE: $00000428 VOL: 0
+;PCODE: $00000429 VOL: 0
+;            timer_flag = ~timer_flag ;
+;PCODE: $0000042A VOL: 0
+;PCODE: $0000042B VOL: 0
+;PCODE: $0000042C VOL: 0
+;
+;            break;
+;PCODE: $0000042D VOL: 0
+;
+;        case 4:
+;PCODE: $0000042E VOL: 0
+;PCODE: $0000042F VOL: 0
+;PCODE: $00000430 VOL: 0
+;
+;            break;
+;PCODE: $00000431 VOL: 0
+;        }
+;PCODE: $00000432 VOL: 0
+;
+;    }
+;PCODE: $00000433 VOL: 0
+;    refresh_flag = 1;
+;PCODE: $00000434 VOL: 0
+;PCODE: $00000435 VOL: 0
+;PCODE: $00000436 VOL: 0
+;}
+;PCODE: $00000437 VOL: 0
+;PCODE: $00000438 VOL: 0
+;PCODE: $00000439 VOL: 0
+;#endif
+;#include "uart.c"
+;
+;
+;#ifndef _uart_
+;#define _uart_
+;
+;
+;void uart0_init(void)
+; 0000 0012 {
+;PCODE: $0000043A VOL: 0
+;PCODE: $0000043B VOL: 0
+;  UCSR0A = 0x00;  // flag  clr, 멀티프로세싱 모드
+;PCODE: $0000043C VOL: 0
+;PCODE: $0000043D VOL: 0
+;  UCSR0B = 0x98; //rx,tx en, rx int on
+;PCODE: $0000043E VOL: 0
+;PCODE: $0000043F VOL: 0
+;  UCSR0C = 0x06; //n-p,1-stop
+;PCODE: $00000440 VOL: 0
+;PCODE: $00000441 VOL: 0
+;  UBRR0H = 0x00;
+;PCODE: $00000442 VOL: 0
+;PCODE: $00000443 VOL: 0
+;  UBRR0L = 103; //8mhz, 9600, 103 - 16mhz, 47 = 7.2738mhz
+;PCODE: $00000444 VOL: 0
+;PCODE: $00000445 VOL: 0
+;}
+;PCODE: $00000446 VOL: 0
+;PCODE: $00000447 VOL: 0
+;
+;
+;#endif
+;#include "i2c.c"
+;#ifndef _i2c_
+;#define _i2c_
+;
+;#define SLA             0xd0
+;#define r_mode          1
+;#define w_mode          0
+;
+;
+;void I2C_write(unsigned char add,unsigned char dat); // 쓰기
+;unsigned char read(char addr); // 읽기
+;
+;
+;// 최대속도 400kbps 를 지원
+;// SCL Freq =  cpu clock / (16+2(TWBR)*4^TWPS)  // cpu clock = 160000 twps = 0
+;// 400k = 160000 / (16+ (2 *TWBR * 1)
+;// TWBR = 12 -> 0x0C
+;
+;
+;/*
+;레지스터 종류는
+;TWAR (Address Resgister)       // TWAR : 슬레이브 전송기나 슬레이브 수신기로 프로그램 되었을 때
+;                                         TWI 가 응답할 7 비트의 슬레이브 주소를 라이트 합니다.
+;TWBR (Bit Rate Register)       // TWBR : 비트 레이트 발생기의 나눗셈 비율을 결정합니다
+;TWCR (Control Register)        // TWCR : TWI 의 동작을 제어합니다.
+;TWDR (Address/Data Shift)      // 송신모드 : 다음 전송할 데이터를 갖는다 // 수신모드 : 수신된 이전 데이터를 갖는다.
+;TWSR (Status Register)         // TWPS(0~1) : 비트레이트 프리스케일러 제어 // TWS(3~7) : TWI로직과 TWI버스상태 나타냄
+;
+;TWCR 레지스터 ( mega128_bits.h에 정의되어있음)
+;#define TWIE    0     // (Interrupt Enable)이 비트가 1 이고 SREG 레지스터의 비트가 1 로 셋되어 있으면 TWINT 플래그가 1 � ...
+;#define TWEN    2     // (TW Enable)TWEN 비트에 1 을 쓰면 TWI 작동이 가능하게 됩니다. // TWEN 비트에 0 을 쓰면 TWI 작동� ...
+;#define TWWC    3     // 설정 x  // TWI 데이터 레지스터(TWDR)에 쓰려고 할 때 TWWC bit가 1이 된다.
+;                         이 때 TWINT bit가 low인 상태이어야 한다. 이 플래그는 TWINT가 1인 상태에서 TWDR 레지스터에 쓰면  ...
+;#define TWSTO   4     // 마스터 모드에서 2 선 시리얼 버스상에서 STOP 신호를 발생시키기 위하여 1 을 씁니다. TWSTO 비트는  ...
+;#define TWSTA   5     // 2선 시리얼 버스상에서 마스터가 되고자 할 때 TWSTA 비트에 1 을 씁니다
+;#define TWEA    6     // TWEA 비트는 확인 신호(Acknoledge) 펄스를 발생시키는 것을 제어합니다.
+;#define TWINT   7     // (Interrupt Flag)이 비트는 현재 작업이 끝났을 때 하드웨어에 의해서 '1'로 설정된다.
+;                         SREG의 I비트와 TWCR의 TWIE가 '1'로 설정되었다면, MCU가 TWI interrupt vector로 점프시킨다.
+;                         TWINT 플래그는 해당 비트를 '1'로 쓰는 것으로 소프트웨어에 의한 클리어를 해야만 한다.
+;                         이 비트는 하드웨어에 의해 자동으로 클리어 되지 않는다. 그래서 TWI 연산을 하기 위해 처음에 클리� ...
+;
+;*/
+;
+;
+;void I2C_init(void)
+; 0000 0013 {
+;PCODE: $00000448 VOL: 0
+;PCODE: $00000449 VOL: 0
+;    TWSR = 0x00;
+;PCODE: $0000044A VOL: 0
+;PCODE: $0000044B VOL: 0
+;    TWBR = 0x0C;            // 400Kbps 로 설정
+;PCODE: $0000044C VOL: 0
+;PCODE: $0000044D VOL: 0
+;
+;    TWCR = (1<<TWEN);       // 0x04 TWEN이 1이어야지 작동
+;PCODE: $0000044E VOL: 0
+;PCODE: $0000044F VOL: 0
+;
+;    I2C_write(0x1B,0x00);                   //MPU6050 초기화
+;PCODE: $00000450 VOL: 0
+;PCODE: $00000451 VOL: 0
+;PCODE: $00000452 VOL: 0
+;PCODE: $00000453 VOL: 0
+;    I2C_write(0x6B,0x00);                   //MPU6050 초기화
+;PCODE: $00000454 VOL: 0
+;PCODE: $00000455 VOL: 0
+;PCODE: $00000456 VOL: 0
+;PCODE: $00000457 VOL: 0
+;    I2C_write(0x6C,0x00);                   //MPU6050 초기화
+;PCODE: $00000458 VOL: 0
+;PCODE: $00000459 VOL: 0
+;PCODE: $0000045A VOL: 0
+;PCODE: $0000045B VOL: 0
+;
+;}
+;PCODE: $0000045C VOL: 0
+;PCODE: $0000045D VOL: 0
+;
+;void I2C_write(unsigned char add,unsigned char dat) //자이로 센서 설정
+;{
+;PCODE: $0000045E VOL: 0
+;PCODE: $0000045F VOL: 0
+;
+;    TWCR = ( 1<<TWEN | 1<<TWSTA | 1<<TWINT ); //0xA4     // TWEN으로 Enable 하고 TWSTA로 마스터 설정하고 TWINT는 1로 시� ...
+;PCODE: $00000460 VOL: 0
+;	add -> Y+1
+;	dat -> Y+0
+;PCODE: $00000461 VOL: 0
+;PCODE: $00000462 VOL: 0
+;
+;    while((TWCR&0x80)==0x00); // 전송 대기  // twint 가 1인지 확인하는것인데 twint가 1이면 0이 될때까지 기다린다
+;PCODE: $00000463 VOL: 0
+;PCODE: $00000464 VOL: 0
+;PCODE: $00000465 VOL: 0
+;PCODE: $00000466 VOL: 0
+;PCODE: $00000467 VOL: 0
+;PCODE: $00000468 VOL: 0
+;    while((TWSR&0xF8)!=0x08); //신호 대기   // twsr이 0x08이면 start 코드 전송 완료
+;PCODE: $00000469 VOL: 0
+;PCODE: $0000046A VOL: 0
+;PCODE: $0000046B VOL: 0
+;PCODE: $0000046C VOL: 0
+;PCODE: $0000046D VOL: 0
+;PCODE: $0000046E VOL: 0
+;PCODE: $0000046F VOL: 0
+;
+;    TWDR=SLA + w_mode; // AD+W저장
+;PCODE: $00000470 VOL: 0
+;PCODE: $00000471 VOL: 0
+;    TWCR=0x84; // 전송
+;PCODE: $00000472 VOL: 0
+;PCODE: $00000473 VOL: 0
+;
+;    while((TWCR&0x80)==0x00); //전송대기
+;PCODE: $00000474 VOL: 0
+;PCODE: $00000475 VOL: 0
+;PCODE: $00000476 VOL: 0
+;PCODE: $00000477 VOL: 0
+;PCODE: $00000478 VOL: 0
+;PCODE: $00000479 VOL: 0
+;    while((TWSR&0xF8)!=0x18); //ACK대기
+;PCODE: $0000047A VOL: 0
+;PCODE: $0000047B VOL: 0
+;PCODE: $0000047C VOL: 0
+;PCODE: $0000047D VOL: 0
+;PCODE: $0000047E VOL: 0
+;PCODE: $0000047F VOL: 0
+;PCODE: $00000480 VOL: 0
+;
+;
+;    TWDR=add; // RA
+;PCODE: $00000481 VOL: 0
+;PCODE: $00000482 VOL: 0
+;    TWCR=0x84; // 전송
+;PCODE: $00000483 VOL: 0
+;PCODE: $00000484 VOL: 0
+;
+;    while((TWCR&0x80)==0x00);
+;PCODE: $00000485 VOL: 0
+;PCODE: $00000486 VOL: 0
+;PCODE: $00000487 VOL: 0
+;PCODE: $00000488 VOL: 0
+;PCODE: $00000489 VOL: 0
+;PCODE: $0000048A VOL: 0
+;    while((TWSR&0xF8)!=0x28); // ACK
+;PCODE: $0000048B VOL: 0
+;PCODE: $0000048C VOL: 0
+;PCODE: $0000048D VOL: 0
+;PCODE: $0000048E VOL: 0
+;PCODE: $0000048F VOL: 0
+;PCODE: $00000490 VOL: 0
+;PCODE: $00000491 VOL: 0
+;
+;    TWDR=dat; // DATA
+;PCODE: $00000492 VOL: 0
+;PCODE: $00000493 VOL: 0
+;    TWCR=0x84; // 전송
+;PCODE: $00000494 VOL: 0
+;PCODE: $00000495 VOL: 0
+;
+;
+;    while((TWCR&0x80)==0x00);
+;PCODE: $00000496 VOL: 0
+;PCODE: $00000497 VOL: 0
+;PCODE: $00000498 VOL: 0
+;PCODE: $00000499 VOL: 0
+;PCODE: $0000049A VOL: 0
+;PCODE: $0000049B VOL: 0
+;    while((TWSR&0xF8)!=0x28); // ACK
+;PCODE: $0000049C VOL: 0
+;PCODE: $0000049D VOL: 0
+;PCODE: $0000049E VOL: 0
+;PCODE: $0000049F VOL: 0
+;PCODE: $000004A0 VOL: 0
+;PCODE: $000004A1 VOL: 0
+;PCODE: $000004A2 VOL: 0
+;
+;    TWCR|=0x94; // P
+;PCODE: $000004A3 VOL: 0
+;PCODE: $000004A4 VOL: 0
+;PCODE: $000004A5 VOL: 0
+;    delay_us(50);  // 50us
+;PCODE: $000004A6 VOL: 0
+;}
+;PCODE: $000004A7 VOL: 0
+;PCODE: $000004A8 VOL: 0
+;PCODE: $000004A9 VOL: 0
+;
+;
+;
+;unsigned char read(char addr) //자이로 센서 값 읽어오기
+;{
+;PCODE: $000004AA VOL: 0
+;PCODE: $000004AB VOL: 0
+;    unsigned char data; // data넣을 변수
+;
+;    TWCR=0xA4; // S
+;PCODE: $000004AC VOL: 0
+;PCODE: $000004AD VOL: 0
+;	addr -> Y+1
+;	data -> R17
+;PCODE: $000004AE VOL: 0
+;PCODE: $000004AF VOL: 0
+;
+;    while((TWCR&0x80)==0x00); //통신대기
+;PCODE: $000004B0 VOL: 0
+;PCODE: $000004B1 VOL: 0
+;PCODE: $000004B2 VOL: 0
+;PCODE: $000004B3 VOL: 0
+;PCODE: $000004B4 VOL: 0
+;PCODE: $000004B5 VOL: 0
+;    while((TWSR&0xF8)!=0x08); //신호대기
+;PCODE: $000004B6 VOL: 0
+;PCODE: $000004B7 VOL: 0
+;PCODE: $000004B8 VOL: 0
+;PCODE: $000004B9 VOL: 0
+;PCODE: $000004BA VOL: 0
+;PCODE: $000004BB VOL: 0
+;PCODE: $000004BC VOL: 0
+;
+;
+;    TWDR=SLA + w_mode; // AD+W
+;PCODE: $000004BD VOL: 0
+;PCODE: $000004BE VOL: 0
+;    TWCR=0x84; // 전송
+;PCODE: $000004BF VOL: 0
+;PCODE: $000004C0 VOL: 0
+;
+;    while((TWCR&0x80)==0x00); //통신대기
+;PCODE: $000004C1 VOL: 0
+;PCODE: $000004C2 VOL: 0
+;PCODE: $000004C3 VOL: 0
+;PCODE: $000004C4 VOL: 0
+;PCODE: $000004C5 VOL: 0
+;PCODE: $000004C6 VOL: 0
+;    while((TWSR&0xF8)!=0x18); //ACK
+;PCODE: $000004C7 VOL: 0
+;PCODE: $000004C8 VOL: 0
+;PCODE: $000004C9 VOL: 0
+;PCODE: $000004CA VOL: 0
+;PCODE: $000004CB VOL: 0
+;PCODE: $000004CC VOL: 0
+;PCODE: $000004CD VOL: 0
+;    TWDR=addr; // RA
+;PCODE: $000004CE VOL: 0
+;PCODE: $000004CF VOL: 0
+;    TWCR=0x84; //전송
+;PCODE: $000004D0 VOL: 0
+;PCODE: $000004D1 VOL: 0
+;
+;
+;
+;    while((TWCR&0x80)==0x00); //통신대기
+;PCODE: $000004D2 VOL: 0
+;PCODE: $000004D3 VOL: 0
+;PCODE: $000004D4 VOL: 0
+;PCODE: $000004D5 VOL: 0
+;PCODE: $000004D6 VOL: 0
+;PCODE: $000004D7 VOL: 0
+;    while((TWSR&0xF8)!=0x28); //ACK
+;PCODE: $000004D8 VOL: 0
+;PCODE: $000004D9 VOL: 0
+;PCODE: $000004DA VOL: 0
+;PCODE: $000004DB VOL: 0
+;PCODE: $000004DC VOL: 0
+;PCODE: $000004DD VOL: 0
+;PCODE: $000004DE VOL: 0
+;    TWCR=0xA4; // RS
+;PCODE: $000004DF VOL: 0
+;PCODE: $000004E0 VOL: 0
+;
+;    while((TWCR&0x80)==0x00); //통신대기
+;PCODE: $000004E1 VOL: 0
+;PCODE: $000004E2 VOL: 0
+;PCODE: $000004E3 VOL: 0
+;PCODE: $000004E4 VOL: 0
+;PCODE: $000004E5 VOL: 0
+;PCODE: $000004E6 VOL: 0
+;    while((TWSR&0xF8)!=0x10); //ACK
+;PCODE: $000004E7 VOL: 0
+;PCODE: $000004E8 VOL: 0
+;PCODE: $000004E9 VOL: 0
+;PCODE: $000004EA VOL: 0
+;PCODE: $000004EB VOL: 0
+;PCODE: $000004EC VOL: 0
+;PCODE: $000004ED VOL: 0
+;    TWDR=SLA + r_mode; // AD+R
+;PCODE: $000004EE VOL: 0
+;PCODE: $000004EF VOL: 0
+;    TWCR=0x84; //전송
+;PCODE: $000004F0 VOL: 0
+;PCODE: $000004F1 VOL: 0
+;
+;
+;    while((TWCR&0x80)==0x00); //통신대기
+;PCODE: $000004F2 VOL: 0
+;PCODE: $000004F3 VOL: 0
+;PCODE: $000004F4 VOL: 0
+;PCODE: $000004F5 VOL: 0
+;PCODE: $000004F6 VOL: 0
+;PCODE: $000004F7 VOL: 0
+;    while((TWSR&0xF8)!=0x40); // ACK
+;PCODE: $000004F8 VOL: 0
+;PCODE: $000004F9 VOL: 0
+;PCODE: $000004FA VOL: 0
+;PCODE: $000004FB VOL: 0
+;PCODE: $000004FC VOL: 0
+;PCODE: $000004FD VOL: 0
+;PCODE: $000004FE VOL: 0
+;    TWCR=0x84;//전송
+;PCODE: $000004FF VOL: 0
+;PCODE: $00000500 VOL: 0
+;
+;    while((TWCR&0x80)==0x00); //통신대기
+;PCODE: $00000501 VOL: 0
+;PCODE: $00000502 VOL: 0
+;PCODE: $00000503 VOL: 0
+;PCODE: $00000504 VOL: 0
+;PCODE: $00000505 VOL: 0
+;PCODE: $00000506 VOL: 0
+;    while((TWSR&0xF8)!=0x58); //ACK
+;PCODE: $00000507 VOL: 0
+;PCODE: $00000508 VOL: 0
+;PCODE: $00000509 VOL: 0
+;PCODE: $0000050A VOL: 0
+;PCODE: $0000050B VOL: 0
+;PCODE: $0000050C VOL: 0
+;PCODE: $0000050D VOL: 0
+;    data=TWDR;
+;PCODE: $0000050E VOL: 0
+;PCODE: $0000050F VOL: 0
+;
+;    TWCR=0x94; // P
+;PCODE: $00000510 VOL: 0
+;PCODE: $00000511 VOL: 0
+;    delay_us(50);  // 50us
+;PCODE: $00000512 VOL: 0
+;    return data;
+;PCODE: $00000513 VOL: 0
+;PCODE: $00000514 VOL: 0
+;PCODE: $00000515 VOL: 0
+;PCODE: $00000516 VOL: 0
+;PCODE: $00000517 VOL: 0
+;
+;}
+;PCODE: $00000518 VOL: 0
+;
+;
+;
+;
+;
+;
+;#endif
+;#include "gyro_func.c"
+;#ifndef _gyro_func_
+;#define _gyro_func_
+;
+;
+;void dgree_to_mode(void){
+; 0000 0014 void dgree_to_mode(void){
+;PCODE: $00000519 VOL: 0
+;PCODE: $0000051A VOL: 0
+;
+;    if(deg_y >= 315 || deg_y <= 45 )        // -45 ~ 45도 실행함수
+;PCODE: $0000051B VOL: 1
+;PCODE: $0000051C VOL: 0
+;PCODE: $0000051D VOL: 0
+;PCODE: $0000051E VOL: 0
+;PCODE: $0000051F VOL: 1
+;PCODE: $00000520 VOL: 0
+;PCODE: $00000521 VOL: 0
+;PCODE: $00000522 VOL: 0
+;PCODE: $00000523 VOL: 0
+;PCODE: $00000524 VOL: 0
+;    {
+;        printf("mode : 1 \n\r");
+;PCODE: $00000525 VOL: 0
+;PCODE: $00000526 VOL: 0
+;PCODE: $00000527 VOL: 0
+;PCODE: $00000528 VOL: 0
+;PCODE: $00000529 VOL: 0
+;PCODE: $0000052A VOL: 0
+;PCODE: $0000052B VOL: 0
+;        mode = 1;
+;PCODE: $0000052C VOL: 0
+;PCODE: $0000052D VOL: 0
+;    }
+;    if(deg_y >= 45 && deg_y <= 135 )        //45 ~ 135도 실행함수
+;PCODE: $0000052E VOL: 0
+;PCODE: $0000052F VOL: 1
+;PCODE: $00000530 VOL: 0
+;PCODE: $00000531 VOL: 0
+;PCODE: $00000532 VOL: 0
+;PCODE: $00000533 VOL: 1
+;PCODE: $00000534 VOL: 0
+;PCODE: $00000535 VOL: 0
+;PCODE: $00000536 VOL: 0
+;PCODE: $00000537 VOL: 0
+;PCODE: $00000538 VOL: 0
+;PCODE: $00000539 VOL: 0
+;PCODE: $0000053A VOL: 0
+;    {
+;        printf("mode : 2 \n\r");
+;PCODE: $0000053B VOL: 0
+;PCODE: $0000053C VOL: 0
+;PCODE: $0000053D VOL: 0
+;PCODE: $0000053E VOL: 0
+;PCODE: $0000053F VOL: 0
+;PCODE: $00000540 VOL: 0
+;PCODE: $00000541 VOL: 0
+;        mode = 2;
+;PCODE: $00000542 VOL: 0
+;PCODE: $00000543 VOL: 0
+;    }
+;    if(deg_y >= 135 && deg_y <= 225 )       // 135 ~ 255도 실행함수
+;PCODE: $00000544 VOL: 0
+;PCODE: $00000545 VOL: 1
+;PCODE: $00000546 VOL: 0
+;PCODE: $00000547 VOL: 0
+;PCODE: $00000548 VOL: 0
+;PCODE: $00000549 VOL: 1
+;PCODE: $0000054A VOL: 0
+;PCODE: $0000054B VOL: 0
+;PCODE: $0000054C VOL: 0
+;PCODE: $0000054D VOL: 0
+;PCODE: $0000054E VOL: 0
+;PCODE: $0000054F VOL: 0
+;PCODE: $00000550 VOL: 0
+;    {
+;        mode = 3;
+;PCODE: $00000551 VOL: 0
+;PCODE: $00000552 VOL: 0
+;        printf("mode : 3 \n\r");
+;PCODE: $00000553 VOL: 0
+;PCODE: $00000554 VOL: 0
+;PCODE: $00000555 VOL: 0
+;PCODE: $00000556 VOL: 0
+;PCODE: $00000557 VOL: 0
+;PCODE: $00000558 VOL: 0
+;PCODE: $00000559 VOL: 0
+;    }
+;    if(deg_y >= 225 && deg_y <= 315 )       // 225 ~ 315도 실행함수
+;PCODE: $0000055A VOL: 0
+;PCODE: $0000055B VOL: 1
+;PCODE: $0000055C VOL: 0
+;PCODE: $0000055D VOL: 0
+;PCODE: $0000055E VOL: 0
+;PCODE: $0000055F VOL: 1
+;PCODE: $00000560 VOL: 0
+;PCODE: $00000561 VOL: 0
+;PCODE: $00000562 VOL: 0
+;PCODE: $00000563 VOL: 0
+;PCODE: $00000564 VOL: 0
+;PCODE: $00000565 VOL: 0
+;PCODE: $00000566 VOL: 0
+;    {
+;        mode = 4;
+;PCODE: $00000567 VOL: 0
+;PCODE: $00000568 VOL: 0
+;        printf("mode : 4 \n\r");
+;PCODE: $00000569 VOL: 0
+;PCODE: $0000056A VOL: 0
+;PCODE: $0000056B VOL: 0
+;PCODE: $0000056C VOL: 0
+;PCODE: $0000056D VOL: 0
+;PCODE: $0000056E VOL: 0
+;PCODE: $0000056F VOL: 0
+;    }
+;}
+;PCODE: $00000570 VOL: 0
+;PCODE: $00000571 VOL: 0
+;PCODE: $00000572 VOL: 0
+;
+;void input_gyro_data(void)
+;{
+;PCODE: $00000573 VOL: 0
+;PCODE: $00000574 VOL: 0
+;    ////////////////////자이로////////////////////
+;
+;    gx_high=read(0x43);  //자이로 x high값 읽어오기
+;PCODE: $00000575 VOL: 0
+;PCODE: $00000576 VOL: 0
+;PCODE: $00000577 VOL: 1
+;    gy_high=read(0x45);  //자이로 y high값 읽어오기
+;PCODE: $00000578 VOL: 0
+;PCODE: $00000579 VOL: 0
+;PCODE: $0000057A VOL: 1
+;    gz_high=read(0x47);  //자이로 z high값 읽어오기
+;PCODE: $0000057B VOL: 0
+;PCODE: $0000057C VOL: 0
+;PCODE: $0000057D VOL: 1
+;
+;    gx_low=read(0x44);   //자이로 x low값 읽어오기
+;PCODE: $0000057E VOL: 0
+;PCODE: $0000057F VOL: 0
+;PCODE: $00000580 VOL: 1
+;    gy_low=read(0x46);   //자이로 y low값 읽어오기
+;PCODE: $00000581 VOL: 0
+;PCODE: $00000582 VOL: 0
+;PCODE: $00000583 VOL: 1
+;    gz_low=read(0x48);   //자이로 z low값 읽어오기
+;PCODE: $00000584 VOL: 0
+;PCODE: $00000585 VOL: 0
+;PCODE: $00000586 VOL: 1
+;
+;    temp_high = read(0x41);
+;PCODE: $00000587 VOL: 0
+;PCODE: $00000588 VOL: 0
+;PCODE: $00000589 VOL: 1
+;    temp_low = read(0x42);
+;PCODE: $0000058A VOL: 0
+;PCODE: $0000058B VOL: 0
+;PCODE: $0000058C VOL: 1
+;
+;    gx = (gx_high<<8) | (gx_low);
+;PCODE: $0000058D VOL: 0
+;PCODE: $0000058E VOL: 1
+;PCODE: $0000058F VOL: 0
+;PCODE: $00000590 VOL: 1
+;PCODE: $00000591 VOL: 0
+;PCODE: $00000592 VOL: 0
+;PCODE: $00000593 VOL: 0
+;PCODE: $00000594 VOL: 1
+;    gy = (gy_high<<8) | (gy_low);
+;PCODE: $00000595 VOL: 0
+;PCODE: $00000596 VOL: 1
+;PCODE: $00000597 VOL: 0
+;PCODE: $00000598 VOL: 1
+;PCODE: $00000599 VOL: 0
+;PCODE: $0000059A VOL: 0
+;PCODE: $0000059B VOL: 0
+;PCODE: $0000059C VOL: 1
+;    gz = (gz_high<<8) | (gz_low);
+;PCODE: $0000059D VOL: 0
+;PCODE: $0000059E VOL: 1
+;PCODE: $0000059F VOL: 0
+;PCODE: $000005A0 VOL: 1
+;PCODE: $000005A1 VOL: 0
+;PCODE: $000005A2 VOL: 0
+;PCODE: $000005A3 VOL: 0
+;PCODE: $000005A4 VOL: 1
+;
+;    temp = (temp_high <<8) | temp_low ;
+;PCODE: $000005A5 VOL: 0
+;PCODE: $000005A6 VOL: 1
+;PCODE: $000005A7 VOL: 0
+;PCODE: $000005A8 VOL: 1
+;PCODE: $000005A9 VOL: 0
+;PCODE: $000005AA VOL: 0
+;PCODE: $000005AB VOL: 1
+;PCODE: $000005AC VOL: 0
+;PCODE: $000005AD VOL: 0
+;    temp = temp/340 + 36.53;
+;PCODE: $000005AE VOL: 1
+;PCODE: $000005AF VOL: 0
+;PCODE: $000005B0 VOL: 0
+;PCODE: $000005B1 VOL: 0
+;PCODE: $000005B2 VOL: 0
+;PCODE: $000005B3 VOL: 1
+;    int_temp = temp*10;     //소수점 1자리까지만 나타내기위해 *10 해서 인트형으로 변환
+;PCODE: $000005B4 VOL: 1
+;PCODE: $000005B5 VOL: 0
+;PCODE: $000005B6 VOL: 0
+;PCODE: $000005B7 VOL: 0
+;PCODE: $000005B8 VOL: 0
+;
+;    //////////////////////////////////////////
+;    /////////////////가속도////////////////////
+;
+;    ax_high=read(0x3b);  //가속도 x high값 읽어오기
+;PCODE: $000005B9 VOL: 0
+;PCODE: $000005BA VOL: 0
+;PCODE: $000005BB VOL: 1
+;    ay_high=read(0x3d);  //가속도 y high값 읽어오기
+;PCODE: $000005BC VOL: 0
+;PCODE: $000005BD VOL: 0
+;PCODE: $000005BE VOL: 1
+;    az_high=read(0x3f);  //가속도 z high값 읽어오기
+;PCODE: $000005BF VOL: 0
+;PCODE: $000005C0 VOL: 0
+;PCODE: $000005C1 VOL: 1
+;
+;
+;    ax_low=read(0x3c);   //자이로 x low값 읽어오기
+;PCODE: $000005C2 VOL: 0
+;PCODE: $000005C3 VOL: 0
+;PCODE: $000005C4 VOL: 1
+;    ay_low=read(0x3e);   //자이로 y low값 읽어오기
+;PCODE: $000005C5 VOL: 0
+;PCODE: $000005C6 VOL: 0
+;PCODE: $000005C7 VOL: 1
+;    az_low=read(0x40);   //자이로 z low값 읽어오기
+;PCODE: $000005C8 VOL: 0
+;PCODE: $000005C9 VOL: 0
+;PCODE: $000005CA VOL: 1
+;
+;    ax = (ax_high<<8) | (ax_low);
+;PCODE: $000005CB VOL: 0
+;PCODE: $000005CC VOL: 1
+;PCODE: $000005CD VOL: 0
+;PCODE: $000005CE VOL: 1
+;PCODE: $000005CF VOL: 0
+;PCODE: $000005D0 VOL: 0
+;PCODE: $000005D1 VOL: 0
+;PCODE: $000005D2 VOL: 1
+;    ay = (ay_high<<8) | (ay_low);
+;PCODE: $000005D3 VOL: 0
+;PCODE: $000005D4 VOL: 1
+;PCODE: $000005D5 VOL: 0
+;PCODE: $000005D6 VOL: 1
+;PCODE: $000005D7 VOL: 0
+;PCODE: $000005D8 VOL: 0
+;PCODE: $000005D9 VOL: 0
+;PCODE: $000005DA VOL: 1
+;    az = (az_high<<8) | (az_low);
+;PCODE: $000005DB VOL: 0
+;PCODE: $000005DC VOL: 1
+;PCODE: $000005DD VOL: 0
+;PCODE: $000005DE VOL: 1
+;PCODE: $000005DF VOL: 0
+;PCODE: $000005E0 VOL: 0
+;PCODE: $000005E1 VOL: 0
+;PCODE: $000005E2 VOL: 1
+;
+;    delay_ms(300);
+;PCODE: $000005E3 VOL: 0
+;PCODE: $000005E4 VOL: 0
+;
+;    //상보필터부분
+;
+;
+;    deg_x = atan2(ax, az) * 180 / PI  ;  //rad to deg
+;PCODE: $000005E5 VOL: 1
+;PCODE: $000005E6 VOL: 0
+;PCODE: $000005E7 VOL: 0
+;PCODE: $000005E8 VOL: 1
+;PCODE: $000005E9 VOL: 0
+;PCODE: $000005EA VOL: 0
+;PCODE: $000005EB VOL: 0
+;PCODE: $000005EC VOL: 0
+;PCODE: $000005ED VOL: 0
+;PCODE: $000005EE VOL: 0
+;PCODE: $000005EF VOL: 0
+;PCODE: $000005F0 VOL: 0
+;PCODE: $000005F1 VOL: 1
+;    dgy_x = gy / 131.0f  ;  //16-bit data to 250 deg/sec
+;PCODE: $000005F2 VOL: 1
+;PCODE: $000005F3 VOL: 0
+;PCODE: $000005F4 VOL: 0
+;PCODE: $000005F5 VOL: 0
+;PCODE: $000005F6 VOL: 0
+;PCODE: $000005F7 VOL: 1
+;    angle_x = (0.95 * (angle_x + (dgy_x * 0.001))) + (0.05 * deg_x) ; //complementary filter
+;PCODE: $000005F8 VOL: 1
+;PCODE: $000005F9 VOL: 0
+;PCODE: $000005FA VOL: 0
+;PCODE: $000005FB VOL: 1
+;PCODE: $000005FC VOL: 0
+;PCODE: $000005FD VOL: 0
+;PCODE: $000005FE VOL: 0
+;PCODE: $000005FF VOL: 0
+;PCODE: $00000600 VOL: 1
+;PCODE: $00000601 VOL: 0
+;PCODE: $00000602 VOL: 0
+;PCODE: $00000603 VOL: 0
+;PCODE: $00000604 VOL: 0
+;PCODE: $00000605 VOL: 1
+;
+;
+;    deg_y = atan2(ay, ax)*180 / PI ;
+;PCODE: $00000606 VOL: 1
+;PCODE: $00000607 VOL: 0
+;PCODE: $00000608 VOL: 0
+;PCODE: $00000609 VOL: 1
+;PCODE: $0000060A VOL: 0
+;PCODE: $0000060B VOL: 0
+;PCODE: $0000060C VOL: 0
+;PCODE: $0000060D VOL: 0
+;PCODE: $0000060E VOL: 0
+;PCODE: $0000060F VOL: 0
+;PCODE: $00000610 VOL: 0
+;PCODE: $00000611 VOL: 0
+;PCODE: $00000612 VOL: 1
+;    dgy_y = gz / 131.f ;
+;PCODE: $00000613 VOL: 1
+;PCODE: $00000614 VOL: 0
+;PCODE: $00000615 VOL: 0
+;PCODE: $00000616 VOL: 0
+;PCODE: $00000617 VOL: 0
+;PCODE: $00000618 VOL: 1
+;    angle_y = (0.95 * (angle_y + (dgy_y * 0.001))) + (0.05 * deg_y); ; //complementary filter
+;PCODE: $00000619 VOL: 1
+;PCODE: $0000061A VOL: 0
+;PCODE: $0000061B VOL: 0
+;PCODE: $0000061C VOL: 1
+;PCODE: $0000061D VOL: 0
+;PCODE: $0000061E VOL: 0
+;PCODE: $0000061F VOL: 0
+;PCODE: $00000620 VOL: 0
+;PCODE: $00000621 VOL: 1
+;PCODE: $00000622 VOL: 0
+;PCODE: $00000623 VOL: 0
+;PCODE: $00000624 VOL: 0
+;PCODE: $00000625 VOL: 0
+;PCODE: $00000626 VOL: 1
+;
+;    deg_x = deg_x+180;
+;PCODE: $00000627 VOL: 1
+;PCODE: $00000628 VOL: 0
+;PCODE: $00000629 VOL: 0
+;PCODE: $0000062A VOL: 1
+;    deg_y = deg_y+180;
+;PCODE: $0000062B VOL: 1
+;PCODE: $0000062C VOL: 0
+;PCODE: $0000062D VOL: 0
+;PCODE: $0000062E VOL: 1
+;    //printf("x : %.2f / y: %.2f \r\n",deg_x,deg_y);
+;
+;}
+;PCODE: $0000062F VOL: 0
+;PCODE: $00000630 VOL: 0
+;
+;
+;
+;#endif
+;#include "lcd_con.c"
+;#ifndef _lcd_con_
+;#define _lcd_con_
+;
+;
+;
+;void LCD_controller(unsigned char control)
+; 0000 0015 {
+;PCODE: $00000631 VOL: 0
+;PCODE: $00000632 VOL: 0
+;    delay_ms(1);
+;PCODE: $00000633 VOL: 0
+;	control -> Y+0
+;PCODE: $00000634 VOL: 0
+;PCODE: $00000635 VOL: 0
+;PCODE: $00000636 VOL: 0
+;    CTRLBUS = 0x00; //RW clear.
+;PCODE: $00000637 VOL: 0
+;PCODE: $00000638 VOL: 0
+;    delay_ms(1); //RW & RS Setup time is 40ns min.
+;PCODE: $00000639 VOL: 0
+;PCODE: $0000063A VOL: 0
+;PCODE: $0000063B VOL: 0
+;    CTRLBUS |= 1<<E; // E set.
+;PCODE: $0000063C VOL: 0
+;PCODE: $0000063D VOL: 0
+;    delay_ms(1); //Data Setup time is 80ns min.
+;PCODE: $0000063E VOL: 0
+;PCODE: $0000063F VOL: 0
+;PCODE: $00000640 VOL: 0
+;    DATABUS = control; // Data input.
+;PCODE: $00000641 VOL: 0
+;PCODE: $00000642 VOL: 0
+;    delay_ms(1); // valid data is 130ns min.
+;PCODE: $00000643 VOL: 0
+;PCODE: $00000644 VOL: 0
+;PCODE: $00000645 VOL: 0
+;    CTRLBUS = (1<<RS)|(1<<RW)|(0<<E); // RS set. RW set. E clear.
+;PCODE: $00000646 VOL: 0
+;PCODE: $00000647 VOL: 0
+;}
+;PCODE: $00000648 VOL: 0
+;PCODE: $00000649 VOL: 0
+;PCODE: $0000064A VOL: 0
+;
+;void LCD_data(unsigned char Data)
+;{
+;PCODE: $0000064B VOL: 0
+;PCODE: $0000064C VOL: 0
+;    delay_ms(1);
+;PCODE: $0000064D VOL: 0
+;	Data -> Y+0
+;PCODE: $0000064E VOL: 0
+;PCODE: $0000064F VOL: 0
+;PCODE: $00000650 VOL: 0
+;    CTRLBUS = 1<<RS; //RS set. RW clear. E clear.
+;PCODE: $00000651 VOL: 0
+;PCODE: $00000652 VOL: 0
+;    delay_ms(1); //RW & RS Setup time is 40ns min.
+;PCODE: $00000653 VOL: 0
+;PCODE: $00000654 VOL: 0
+;PCODE: $00000655 VOL: 0
+;    CTRLBUS |= 1<<E; // E set.
+;PCODE: $00000656 VOL: 0
+;PCODE: $00000657 VOL: 0
+;    delay_ms(1); //Data Setup time is 80ns min.
+;PCODE: $00000658 VOL: 0
+;PCODE: $00000659 VOL: 0
+;PCODE: $0000065A VOL: 0
+;    DATABUS = Data; // Data input.
+;PCODE: $0000065B VOL: 0
+;PCODE: $0000065C VOL: 0
+;    delay_ms(1); // valid data min is 130ns.
+;PCODE: $0000065D VOL: 0
+;PCODE: $0000065E VOL: 0
+;PCODE: $0000065F VOL: 0
+;    CTRLBUS = 1<<RW; // RS clear. RW set. E clear.
+;PCODE: $00000660 VOL: 0
+;PCODE: $00000661 VOL: 0
+;}
+;PCODE: $00000662 VOL: 0
+;PCODE: $00000663 VOL: 0
+;PCODE: $00000664 VOL: 0
+;
+;void LCD_string(unsigned char address, char *Str,char x,char y)
+;{
+;PCODE: $00000665 VOL: 0
+;PCODE: $00000666 VOL: 0
+;
+;    int i=1;
+;
+;    if(y==1)
+;PCODE: $00000667 VOL: 0
+;PCODE: $00000668 VOL: 0
+;PCODE: $00000669 VOL: 0
+;	address -> Y+6
+;	*Str -> Y+4
+;	x -> Y+3
+;	y -> Y+2
+;	i -> R16,R17
+;PCODE: $0000066A VOL: 0
+;PCODE: $0000066B VOL: 0
+;PCODE: $0000066C VOL: 0
+;PCODE: $0000066D VOL: 0
+;PCODE: $0000066E VOL: 0
+;        i = 17;
+;PCODE: $0000066F VOL: 0
+;PCODE: $00000670 VOL: 0
+;
+;
+;
+;    LCD_controller(address); // LCD display start position
+;PCODE: $00000671 VOL: 0
+;PCODE: $00000672 VOL: 0
+;PCODE: $00000673 VOL: 0
+;    while(*Str!=0)
+;PCODE: $00000674 VOL: 0
+;PCODE: $00000675 VOL: 0
+;PCODE: $00000676 VOL: 0
+;PCODE: $00000677 VOL: 0
+;PCODE: $00000678 VOL: 0
+;    {
+;
+;        if(address+i == 0x21)
+;PCODE: $00000679 VOL: 0
+;PCODE: $0000067A VOL: 0
+;PCODE: $0000067B VOL: 0
+;PCODE: $0000067C VOL: 0
+;PCODE: $0000067D VOL: 0
+;            LCD_controller(0xc0); // second line display
+;PCODE: $0000067E VOL: 0
+;PCODE: $0000067F VOL: 0
+;        while(x>0)
+;PCODE: $00000680 VOL: 0
+;PCODE: $00000681 VOL: 0
+;PCODE: $00000682 VOL: 0
+;PCODE: $00000683 VOL: 0
+;PCODE: $00000684 VOL: 0
+;        {
+;            x--;
+;PCODE: $00000685 VOL: 0
+;PCODE: $00000686 VOL: 0
+;PCODE: $00000687 VOL: 0
+;            LCD_data(' ');
+;PCODE: $00000688 VOL: 0
+;PCODE: $00000689 VOL: 0
+;        }
+;PCODE: $0000068A VOL: 0
+;PCODE: $0000068B VOL: 0
+;        LCD_data(*Str);
+;PCODE: $0000068C VOL: 0
+;PCODE: $0000068D VOL: 0
+;PCODE: $0000068E VOL: 0
+;        i++;
+;PCODE: $0000068F VOL: 0
+;PCODE: $00000690 VOL: 0
+;        Str++;
+;PCODE: $00000691 VOL: 0
+;PCODE: $00000692 VOL: 0
+;PCODE: $00000693 VOL: 0
+;    }
+;PCODE: $00000694 VOL: 0
+;PCODE: $00000695 VOL: 0
+;}
+;PCODE: $00000696 VOL: 0
+;PCODE: $00000697 VOL: 0
+;PCODE: $00000698 VOL: 0
+;PCODE: $00000699 VOL: 0
+;PCODE: $0000069A VOL: 0
+;PCODE: $0000069B VOL: 0
+;PCODE: $0000069C VOL: 0
+;
+;
+;void LCD_clear()
+;{
+;PCODE: $0000069D VOL: 0
+;PCODE: $0000069E VOL: 0
+;    LCD_string(0x10," ",0,0);
+;PCODE: $0000069F VOL: 0
+;PCODE: $000006A0 VOL: 0
+;PCODE: $000006A1 VOL: 0
+;PCODE: $000006A2 VOL: 0
+;PCODE: $000006A3 VOL: 0
+;PCODE: $000006A4 VOL: 0
+;PCODE: $000006A5 VOL: 0
+;PCODE: $000006A6 VOL: 0
+;PCODE: $000006A7 VOL: 0
+;    LCD_controller(0x01); // Display Clear.
+;PCODE: $000006A8 VOL: 0
+;PCODE: $000006A9 VOL: 0
+;    delay_us(2);
+;PCODE: $000006AA VOL: 0
+;}
+;PCODE: $000006AB VOL: 0
+;PCODE: $000006AC VOL: 0
+
+	.DSEG
+_0xBB:
+	.BYTE 0x2
+;
+;void LCD_initialize()
+;{
+
+	.CSEG
+;PCODE: $000006AD VOL: 0
+;PCODE: $000006AE VOL: 0
+;    /* 8bit interface mode */
+;    delay_ms(50);
+;PCODE: $000006AF VOL: 0
+;PCODE: $000006B0 VOL: 0
+;PCODE: $000006B1 VOL: 0
+;    LCD_controller(0x3c); // Function set. Use 2-line, display on.
+;PCODE: $000006B2 VOL: 0
+;PCODE: $000006B3 VOL: 0
+;    delay_ms(40); // wait for more than 39us.
+;PCODE: $000006B4 VOL: 0
+;PCODE: $000006B5 VOL: 0
+;PCODE: $000006B6 VOL: 0
+;    LCD_controller(0x0c); // Display ON/OFF Control. display on ,cursor off,blink off
+;PCODE: $000006B7 VOL: 0
+;PCODE: $000006B8 VOL: 0
+;    delay_ms(40); // wait for more than 39us.
+;PCODE: $000006B9 VOL: 0
+;PCODE: $000006BA VOL: 0
+;PCODE: $000006BB VOL: 0
+;    LCD_controller(0x01); // Display Clear.
+;PCODE: $000006BC VOL: 0
+;PCODE: $000006BD VOL: 0
+;    delay_ms(1); // wait for more than 1.53ms.
+;PCODE: $000006BE VOL: 0
+;PCODE: $000006BF VOL: 0
+;PCODE: $000006C0 VOL: 0
+;    LCD_controller(0x06); // Entry Mode Set. I/D increment mode, entire shift off
+;PCODE: $000006C1 VOL: 0
+;PCODE: $000006C2 VOL: 0
+;}
+;PCODE: $000006C3 VOL: 0
+;PCODE: $000006C4 VOL: 0
+;
+;#endif
+;
+;
+;
+;
+;void main(void)
+; 0000 001B {
+;PCODE: $000006C5 VOL: 0
+; 0000 001C 
+; 0000 001D //####################### 내부풀업 ##################################
+; 0000 001E     DDRD = 0x3F;     //외부인터럽트 입력선언 상위4비트 출력, 하위4비트 입력
+;PCODE: $000006C6 VOL: 0
+;PCODE: $000006C7 VOL: 0
+; 0000 001F     PORTD = 0xF0;
+;PCODE: $000006C8 VOL: 0
+;PCODE: $000006C9 VOL: 0
+; 0000 0020     PORTB = 0xFF;
+;PCODE: $000006CA VOL: 0
+;PCODE: $000006CB VOL: 0
+; 0000 0021     SFIOR = 0xFB & SFIOR;   // Atmega 내부풀업 사용 : ddrx = 0 / portx = 1 / pud = 0
+;PCODE: $000006CC VOL: 0
+;PCODE: $000006CD VOL: 0
+;PCODE: $000006CE VOL: 0
+; 0000 0022     uart0_init();
+;PCODE: $000006CF VOL: 0
+; 0000 0023 //#################################################################
+; 0000 0024     DDRA = 0xFF;
+;PCODE: $000006D0 VOL: 0
+;PCODE: $000006D1 VOL: 0
+; 0000 0025     DDRB = 0xFF;
+;PCODE: $000006D2 VOL: 0
+;PCODE: $000006D3 VOL: 0
+; 0000 0026 
+; 0000 0027     // 타이머0 오버플로우 인터럽트
+; 0000 0028     TCCR0= 0x05;     // Prescale : 128
+;PCODE: $000006D4 VOL: 0
+;PCODE: $000006D5 VOL: 0
+; 0000 0029     TIMSK=0x01;
+;PCODE: $000006D6 VOL: 0
+;PCODE: $000006D7 VOL: 0
+; 0000 002A     TCNT0 = 131;       //256-125 = 131
+;PCODE: $000006D8 VOL: 0
+;PCODE: $000006D9 VOL: 0
+; 0000 002B     //1/ 16000000 *  128  * 125 = 1ms,  (256-125)=131
+; 0000 002C 
+; 0000 002D     DDRE = 0x04;        // 부저전용 PORTE.2
+;PCODE: $000006DA VOL: 0
+;PCODE: $000006DB VOL: 0
+; 0000 002E 
+; 0000 002F 
+; 0000 0030     EIMSK = 0x80;   //int0~7 다쓸거니까
+;PCODE: $000006DC VOL: 0
+;PCODE: $000006DD VOL: 0
+; 0000 0031     //EICRA = 0xff;   //int0~3 전부 상승엣지로 눌렸을때 작동하게
+; 0000 0032     EICRB = 0x80;   //int4~7 전부 상승엣지로
+;PCODE: $000006DE VOL: 0
+;PCODE: $000006DF VOL: 0
+; 0000 0033 
+; 0000 0034     //★★★★★★★★★★★★★★★★★ Proteus : 주석처리 / 빵판 : 주석해제 ★★★★★★★★★★★★★
+; 0000 0035     I2C_init();
+;PCODE: $000006E0 VOL: 0
+; 0000 0036     //★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★ ...
+; 0000 0037     printf("start\r\n");
+;PCODE: $000006E1 VOL: 0
+;PCODE: $000006E2 VOL: 0
+;PCODE: $000006E3 VOL: 0
+;PCODE: $000006E4 VOL: 0
+;PCODE: $000006E5 VOL: 0
+;PCODE: $000006E6 VOL: 0
+;PCODE: $000006E7 VOL: 0
+; 0000 0038 
+; 0000 0039 
+; 0000 003A     LCD_initialize();
+;PCODE: $000006E8 VOL: 0
+; 0000 003B 
+; 0000 003C     LCD_string(0x10, "Digital Clock",1,0);
+;PCODE: $000006E9 VOL: 0
+;PCODE: $000006EA VOL: 0
+;PCODE: $000006EB VOL: 0
+;PCODE: $000006EC VOL: 0
+;PCODE: $000006ED VOL: 0
+;PCODE: $000006EE VOL: 0
+;PCODE: $000006EF VOL: 0
+;PCODE: $000006F0 VOL: 0
+;PCODE: $000006F1 VOL: 0
+; 0000 003D     LCD_string(0x10, "with Gyro",1,1);
+;PCODE: $000006F2 VOL: 0
+;PCODE: $000006F3 VOL: 0
+;PCODE: $000006F4 VOL: 0
+;PCODE: $000006F5 VOL: 0
+;PCODE: $000006F6 VOL: 0
+;PCODE: $000006F7 VOL: 0
+;PCODE: $000006F8 VOL: 0
+;PCODE: $000006F9 VOL: 0
+;PCODE: $000006FA VOL: 0
+; 0000 003E 
+; 0000 003F     delay_ms(1000);
+;PCODE: $000006FB VOL: 0
+;PCODE: $000006FC VOL: 0
+; 0000 0040     LCD_clear();
+;PCODE: $000006FD VOL: 0
+; 0000 0041 
+; 0000 0042     #asm("sei")
+;PCODE: $000006FE VOL: 0
+	sei
+;PCODE: $000006FF VOL: 0
+; 0000 0043 
+; 0000 0044     while(1)
+;PCODE: $00000700 VOL: 0
+; 0000 0045     {
+; 0000 0046             delay_ms(100);
+;PCODE: $00000701 VOL: 0
+;PCODE: $00000702 VOL: 0
+;PCODE: $00000703 VOL: 0
+; 0000 0047             input_gyro_data();                // 자이로 값 -> 각도 계산, 보정
+;PCODE: $00000704 VOL: 0
+; 0000 0048             dgree_to_mode();                   // 각도 값 -> 모드 변환
+;PCODE: $00000705 VOL: 0
+; 0000 0049 
+; 0000 004A 
+; 0000 004B             if (state != mode)
+;PCODE: $00000706 VOL: 0
+;PCODE: $00000707 VOL: 0
+;PCODE: $00000708 VOL: 0
+; 0000 004C             {
+; 0000 004D                 refresh_flag=1;
+;PCODE: $00000709 VOL: 0
+;PCODE: $0000070A VOL: 0
+;PCODE: $0000070B VOL: 0
+; 0000 004E                 state = mode;
+;PCODE: $0000070C VOL: 0
+;PCODE: $0000070D VOL: 0
+; 0000 004F             }
+; 0000 0050 
+; 0000 0051             switch(mode)
+;PCODE: $0000070E VOL: 0
+;PCODE: $0000070F VOL: 0
+;PCODE: $00000710 VOL: 0
+; 0000 0052             {
+; 0000 0053             case 1:
+;PCODE: $00000711 VOL: 0
+;PCODE: $00000712 VOL: 0
+; 0000 0054                 if (pause_flag == 1)
+;PCODE: $00000713 VOL: 0
+;PCODE: $00000714 VOL: 0
+;PCODE: $00000715 VOL: 0
+; 0000 0055                 {
+; 0000 0056                     key = key_in();
+;PCODE: $00000716 VOL: 0
+;PCODE: $00000717 VOL: 0
+; 0000 0057                     if(key_flag == 1) key_chk();
+;PCODE: $00000718 VOL: 0
+;PCODE: $00000719 VOL: 0
+;PCODE: $0000071A VOL: 0
+;PCODE: $0000071B VOL: 0
+; 0000 0058                 }
+;PCODE: $0000071C VOL: 0
+; 0000 0059                 break;
+;PCODE: $0000071D VOL: 0
+;PCODE: $0000071E VOL: 0
+; 0000 005A 
+; 0000 005B             case 2:
+;PCODE: $0000071F VOL: 0
+;PCODE: $00000720 VOL: 0
+;PCODE: $00000721 VOL: 0
+; 0000 005C                 key = key_in();
+;PCODE: $00000722 VOL: 0
+;PCODE: $00000723 VOL: 0
+; 0000 005D                 if(key_flag == 1) key_chk();
+;PCODE: $00000724 VOL: 0
+;PCODE: $00000725 VOL: 0
+;PCODE: $00000726 VOL: 0
+;PCODE: $00000727 VOL: 0
+; 0000 005E                 break;
+;PCODE: $00000728 VOL: 0
+;PCODE: $00000729 VOL: 0
+; 0000 005F 
+; 0000 0060             case 3:
+;PCODE: $0000072A VOL: 0
+;PCODE: $0000072B VOL: 0
+;PCODE: $0000072C VOL: 0
+; 0000 0061                 if(timer_flag == 0)
+;PCODE: $0000072D VOL: 0
+;PCODE: $0000072E VOL: 0
+;PCODE: $0000072F VOL: 0
+; 0000 0062                 {
+; 0000 0063                     key = key_in();
+;PCODE: $00000730 VOL: 0
+;PCODE: $00000731 VOL: 0
+; 0000 0064                     if(key_flag == 1) key_chk();
+;PCODE: $00000732 VOL: 0
+;PCODE: $00000733 VOL: 0
+;PCODE: $00000734 VOL: 0
+;PCODE: $00000735 VOL: 0
+; 0000 0065                 }
+;PCODE: $00000736 VOL: 0
+; 0000 0066             }
+;PCODE: $00000737 VOL: 0
+;PCODE: $00000738 VOL: 0
+; 0000 0067 
+; 0000 0068     }
+;PCODE: $00000739 VOL: 0
+;PCODE: $0000073A VOL: 0
+; 0000 0069 
+; 0000 006A 
+; 0000 006B }
+;PCODE: $0000073B VOL: 0
+;PCODE: $0000073C VOL: 0
+;PCODE: $0000073D VOL: 0
+
+	.DSEG
+_0xBC:
+	.BYTE 0x18

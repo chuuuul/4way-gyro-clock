@@ -1,0 +1,95 @@
+RAM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+gx_low                                                                            0x0571       1
+gx_high                                                                           0x0572       1
+gy_low                                                                            0x0573       1
+gy_high                                                                           0x0574       1
+gz_low                                                                            0x0575       1
+gz_high                                                                           0x0576       1
+ax_low                                                                            0x0577       1
+ax_high                                                                           0x0578       1
+ay_low                                                                            0x0579       1
+ay_high                                                                           0x057A       1
+az_low                                                                            0x057B       1
+az_high                                                                           0x057C       1
+gx                                                                                0x057D       4
+gy                                                                                0x0581       4
+gz                                                                                0x0585       4
+ax                                                                                0x0589       4
+ay                                                                                0x058D       4
+az                                                                                0x0591       4
+angle_x                                                                           0x0595       4
+deg_x                                                                             0x0599       4
+angle_y                                                                           0x059D       4
+deg_y                                                                             0x05A1       4
+dgy_x                                                                             0x05A5       4
+dgy_y                                                                             0x05A9       4
+temp_low                                                                          0x05AD       1
+temp_high                                                                         0x05AE       1
+temp                                                                              0x05AF       4
+time                                                                              0x05B3       5
+alarm                                                                             0x05B8       5
+timer                                                                             0x05BD       5
+time_loop                                                                         0x05C2       4
+_seed                                                                             0x05C6       4
+
+EEPROM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+
+Register Allocation
+Variable                                                                          Register  Size
+------------------------------------------------------------------------------------------------
+int_temp                                                                          R4,R5        2
+key_flag                                                                          R2.0      1bit
+up_down_flag                                                                      R2.1      1bit
+timer_flag                                                                        R2.2      1bit
+clock_config_flag                                                                 R2.3      1bit
+pause_flag                                                                        R2.4      1bit
+alarm_flag                                                                        R2.5      1bit
+refresh_flag                                                                      R2.6      1bit
+bellbell_flag                                                                     R7           1
+mode                                                                              R6           1
+key                                                                               R9           1
+state                                                                             R8           1
+
+FLASH Allocation [words]
+Function                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+key_in                                                                            0x00139     18
+key_chk                                                                           0x0014B    184
+lcd_out                                                                           0x00203     42
+ring_the_bell                                                                     0x0022D     14
+clock_position_carry                                                              0x0023B     47
+alarm_position_carry                                                              0x0026A     43
+timer_position_carry                                                              0x00295     47
+clock_display                                                                     0x002D1     39
+temp_display                                                                      0x00369     44
+timer0_ovf_isr                                                                    0x00395    115
+ext_int7_isr                                                                      0x00408     57
+uart0_init                                                                        0x00441     13
+I2C_init                                                                          0x0044E     19
+I2C_write                                                                         0x00461     52
+dgree_to_mode                                                                     0x004E7     68
+input_gyro_data                                                                   0x0052B    368
+LCD_controller                                                                    0x0069B     18
+LCD_data                                                                          0x006AD     18
+LCD_string                                                                        0x006BF     52
+LCD_clear                                                                         0x006F3     16
+LCD_initialize                                                                    0x00703     17
+main                                                                              0x00714     99
+putchar                                                                           0x00777      7
+put_usart_G100                                                                    0x0077E     13
+_ftoe_G100                                                                        0x0078B    212
+_print_G100                                                                       0x0085F    541
+printf                                                                            0x00A7C     37
+ftrunc                                                                            0x00AA1     49
+floor                                                                             0x00AD2     16
+xatan                                                                             0x00AE2     43
+yatan                                                                             0x00B0D     61
+atan2                                                                             0x00B4A     87
+strcpyf                                                                           0x00BA1     13
+strlen                                                                            0x00BAE     12
+strlenf                                                                           0x00BBA     13
+ftoa                                                                              0x00BC7    155
